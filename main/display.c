@@ -13,7 +13,7 @@ static esp_err_t display_backlight_init(void);
 static lv_display_t *lvgl_disp = NULL;
 
 // LVGL images declaration
-LV_IMG_DECLARE(vaultboy_85);
+LV_IMG_DECLARE(klaus_dab_126x85);
 LV_IMG_DECLARE(battery_15);
 
 // Battery gauge
@@ -193,9 +193,9 @@ void start_gui(void)
     lv_obj_set_style_bg_color(scr, lv_color_hex(BACKGROUND_COLOR), LV_PART_MAIN);
     lv_obj_set_style_text_color(scr, lv_color_hex(FOREGROUND_COLOR), LV_PART_MAIN);
 
-    lv_obj_t *vaultBoy = lv_image_create(scr);
-    lv_image_set_src(vaultBoy, &vaultboy_85);
-    lv_obj_align(vaultBoy, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *klausDab = lv_image_create(scr);
+    lv_image_set_src(klausDab, &klaus_dab_126x85);
+    lv_obj_align(klausDab, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t *batLogo = lv_image_create(scr);
     lv_image_set_src(batLogo, &battery_15);

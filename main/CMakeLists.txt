@@ -1,4 +1,4 @@
-idf_component_register(SRCS "keybtn.c" "knob.c" "display.c" "main.c" 
+idf_component_register(SRCS "keybtn.c" "knob.c" "display.c" "battery.c" "main.c" 
                     INCLUDE_DIRS ".")
 
 # Convert image to C Array usibng LVGL tools

@@ -11,7 +11,7 @@
 - [x] Display [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/lcd/index.html)
 - [ ] WS2812 [Component](https://components.espressif.com/components/espressif/led_strip/versions/2.5.5)
 - [ ] SD SPI [sd_spi](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/sdspi_host.html)
-- [ ] Battery PPM
+- [x] Battery PPM
 - [ ] PN532
 - [ ] IR [RMT](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/rmt.html)
 - [ ] CC1101 [Component](https://components.espressif.com/components/jgromes/radiolib/versions/7.0.2)
@@ -51,11 +51,11 @@ Key Button: GPIO6
 
 ### Power Management Unit
 
-BQ27220 -> battery fuel gauge
+BQ27220 -> Battery fuel gauge
 
 Address: 0x55
 
-BQ25896 -> PPM battery
+BQ25896 -> Battery charge management
 
 Address: 0x6B
 

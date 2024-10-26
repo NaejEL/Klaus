@@ -19,6 +19,7 @@ LV_IMG_DECLARE(battery_15);
 // Battery gauge
 static void updateBatteryGauge(void);
 lv_obj_t *battery_bar = NULL;
+lv_obj_t *battery_label = NULL;
 int battery_value = 0;
 
 esp_err_t display_init(void)
@@ -148,11 +149,22 @@ void updateBatteryGauge(void)
     }
 }
 
+void updateBatteryLabel(void)
+{
+    if (battery_label != NULL && battery_value >= 0)
+    {
+        lvgl_port_lock(0);
+        lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
+        lvgl_port_unlock();
+    }
+}
+
 void batteryTask(void *pvParameters)
 {
     while (1)
     {
         updateBatteryGauge();
+        updateBatteryLabel();
         vTaskDelay(BATTERY_BAR_REFRESH_RATE / portTICK_PERIOD_MS); // Delay 5 seconds between updates
     }
 }
@@ -200,6 +212,11 @@ void start_gui(void)
     lv_obj_t *batLogo = lv_image_create(scr);
     lv_image_set_src(batLogo, &battery_15);
     lv_obj_align(batLogo, LV_ALIGN_TOP_LEFT, 0, 2);
+
+    // Battery Label
+    battery_label = lv_label_create(scr);
+    lv_obj_align(battery_label, LV_ALIGN_TOP_LEFT, 90, 2);
+    lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
 
     // Bars Style
     static lv_style_t bar_indic;

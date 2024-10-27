@@ -41,9 +41,6 @@
 #define LCD_MIRROR_Y (1)
 #define LCD_INVERT_COLOR (1)
 
-#define LCD_SPI_MIS0 (GPIO_NUM_10)
-#define LCD_SPI_MOSI (GPIO_NUM_9)
-#define LCD_SPI_CLK (GPIO_NUM_11)
 #define LCD_SPI_CS (GPIO_NUM_41)
 #define LCD_DC (GPIO_NUM_16)
 #define LCD_RST (GPIO_NUM_40)
@@ -52,7 +49,7 @@
 #define LCD_PIXEL_CLOCK_HZ SPI_MASTER_FREQ_80M
 #define LCD_SPI_NUM (SPI2_HOST)
 
-#define LCD_DRAW_BUFF_SIZE (LCD_H_RES * 100)
+#define LCD_DRAW_BUFF_SIZE (LCD_H_RES * 20) // *100
 #define LCD_DRAW_BUFF_DOUBLE (1)
 
 #define LCD_USE_DMA (1)
@@ -70,6 +67,9 @@
 
 #define BATTERY_BAR_REFRESH_RATE 300
 
+#define SD_LOGO_REFRESH_RATE 3000
+
+
 typedef enum
 {
     WHEEL_UP,
@@ -80,7 +80,7 @@ typedef enum
     KEY_CLICK_LONG
 } user_actions_t;
 
-esp_err_t display_init(void);
+esp_err_t display_init(spi_host_device_t spi_host);
 
 esp_err_t lvgl_init(void);
 
@@ -91,7 +91,5 @@ void display_backlight_off(void);
 void display_backlight_toggle(void);
 
 void start_gui(void);
-
-void setBatteryValue(int value);
 
 void user_action(user_actions_t action);

@@ -1,6 +1,6 @@
 /build
 /managed_components
-/images_c
+/main/images_c
 /.vscode
 /.devcontainer
 sdkconfig

@@ -1,5 +1,8 @@
 #include "display.h"
 
+#include "battery.h"
+#include "sd.h"
+
 static const char *TAG = "Display";
 
 static bool backlight_state = false;
@@ -15,26 +18,19 @@ static lv_display_t *lvgl_disp = NULL;
 // LVGL images declaration
 LV_IMG_DECLARE(klaus_dab_126x85);
 LV_IMG_DECLARE(battery_15);
+LV_IMG_DECLARE(sd_15);
+LV_IMG_DECLARE(charge_15);
 
 // Battery gauge
-static void updateBatteryGauge(void);
+lv_obj_t *battery_logo = NULL;
 lv_obj_t *battery_bar = NULL;
 lv_obj_t *battery_label = NULL;
-int battery_value = 0;
 
-esp_err_t display_init(void)
+// SD Logo
+lv_obj_t *sd_logo = NULL;
+
+esp_err_t display_init(spi_host_device_t spi_host)
 {
-    ESP_LOGD(TAG, "Initialize SPI bus");
-    const spi_bus_config_t buscfg = {
-        .mosi_io_num = LCD_SPI_MOSI,
-        .miso_io_num = LCD_SPI_MIS0,
-        .sclk_io_num = LCD_SPI_CLK,
-        .quadwp_io_num = GPIO_NUM_NC,
-        .quadhd_io_num = GPIO_NUM_NC,
-        .max_transfer_sz = 0,
-    };
-    ESP_RETURN_ON_ERROR(spi_bus_initialize(LCD_SPI_NUM, &buscfg, SPI_DMA_CH_AUTO), TAG, "Initialize SPI bus failed");
-
     ESP_LOGD(TAG, "Install panel IO");
     const esp_lcd_panel_io_spi_config_t io_config = {
         .cs_gpio_num = LCD_SPI_CS,
@@ -45,7 +41,7 @@ esp_err_t display_init(void)
         .lcd_cmd_bits = LCD_CMD_BITS,
         .lcd_param_bits = LCD_PARAM_BITS,
     };
-    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_SPI_NUM, &io_config, &io_handle), TAG, "LCD new panel IO SPI failed");
+    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host, &io_config, &io_handle), TAG, "LCD new panel IO SPI failed");
 
     ESP_LOGD(TAG, "Install LCD driver");
     const esp_lcd_panel_dev_config_t panel_config = {
@@ -134,38 +130,42 @@ esp_err_t lvgl_init(void)
     return ESP_OK;
 }
 
-void setBatteryValue(int value)
-{
-    battery_value = value;
-}
-
-void updateBatteryGauge(void)
-{
-    if (battery_bar != NULL && battery_value >= 0)
-    {
-        lvgl_port_lock(0);
-        lv_bar_set_value(battery_bar, battery_value, LV_ANIM_OFF);
-        lvgl_port_unlock();
-    }
-}
-
-void updateBatteryLabel(void)
-{
-    if (battery_label != NULL && battery_value >= 0)
-    {
-        lvgl_port_lock(0);
-        lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
-        lvgl_port_unlock();
-    }
-}
-
 void batteryTask(void *pvParameters)
 {
     while (1)
     {
-        updateBatteryGauge();
-        updateBatteryLabel();
+        uint16_t battery_value = battery_get_percent();
+        lvgl_port_lock(0);
+        lv_bar_set_value(battery_bar, battery_value, LV_ANIM_OFF);
+        lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
+        if (battery_get_charging_state())
+        {
+            lv_image_set_src(battery_logo, &charge_15);
+        }
+        else
+        {
+            lv_image_set_src(battery_logo, &battery_15);
+        }
+        lvgl_port_unlock();
         vTaskDelay(BATTERY_BAR_REFRESH_RATE / portTICK_PERIOD_MS); // Delay 5 seconds between updates
+    }
+}
+
+void sdTask(void *pvParam)
+{
+    while (1)
+    {
+        lvgl_port_lock(0);
+        if (sd_is_present())
+        {
+            lv_obj_remove_flag(sd_logo, LV_OBJ_FLAG_HIDDEN);
+        }
+        else
+        {
+            lv_obj_add_flag(sd_logo, LV_OBJ_FLAG_HIDDEN);
+        }
+        lvgl_port_unlock();
+        vTaskDelay(SD_LOGO_REFRESH_RATE / portTICK_PERIOD_MS); // Delay 5 seconds between updates
     }
 }
 
@@ -209,14 +209,19 @@ void start_gui(void)
     lv_image_set_src(klausDab, &klaus_dab_126x85);
     lv_obj_align(klausDab, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *batLogo = lv_image_create(scr);
-    lv_image_set_src(batLogo, &battery_15);
-    lv_obj_align(batLogo, LV_ALIGN_TOP_LEFT, 0, 2);
+    battery_logo = lv_image_create(scr);
+    lv_image_set_src(battery_logo, &battery_15);
+    lv_obj_align(battery_logo, LV_ALIGN_TOP_LEFT, 0, 2);
+
+    // SD Logo
+    sd_logo = lv_image_create(scr);
+    lv_image_set_src(sd_logo, &sd_15);
+    lv_obj_align(sd_logo, LV_ALIGN_TOP_LEFT, 305, 2);
 
     // Battery Label
     battery_label = lv_label_create(scr);
     lv_obj_align(battery_label, LV_ALIGN_TOP_LEFT, 90, 2);
-    lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
+    lv_label_set_text_fmt(battery_label, "%d%%", 0);
 
     // Bars Style
     static lv_style_t bar_indic;
@@ -238,8 +243,9 @@ void start_gui(void)
     lv_obj_add_style(battery_bar, &bar_indic, LV_PART_INDICATOR);
     lv_obj_set_size(battery_bar, 70, 10);
     lv_obj_align(battery_bar, LV_ALIGN_TOP_LEFT, 15, 5);
-    lv_bar_set_value(battery_bar, 70, LV_ANIM_OFF);
+    lv_bar_set_value(battery_bar, 0, LV_ANIM_OFF);
 
     lvgl_port_unlock();
-    xTaskCreate(batteryTask, "batteryTask", 4096, NULL, 4, NULL);
+    xTaskCreate(batteryTask, "batteryTask", 4096, NULL, 5, NULL);
+    xTaskCreate(sdTask, "sdTask", 4096, NULL, 5, NULL);
 }

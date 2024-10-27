@@ -66,6 +66,7 @@ void bq25896_init(i2c_port_t _i2c_port)
     bq25896_enable_adc();
     bq25896_disable_watchdog();
     bq25896_enable_charge();
+    //bq25896_reset_registers();
 
     printf("%s:\n \
     Device ID:0x%02x\n \
@@ -75,7 +76,8 @@ void bq25896_init(i2c_port_t _i2c_port)
     Current limit:%dmA\n \
     Charge voltage:%dmV\n \
     Pre charge current:%dmA\n \
-    Charger constant current:%dmA\n",
+    Charger constant current:%dmA\n \
+    Charge state:%d\n",
            TAG,
            bq25896_get_devices_id(),
            bq25896_get_charge_status(),
@@ -84,7 +86,8 @@ void bq25896_init(i2c_port_t _i2c_port)
            bq25896_get_input_current_limit(),
            bq25896_get_charge_target_voltage(),
            bq25896_get_precharge_current(),
-           bq25896_get_charger_constant_current());
+           bq25896_get_charger_constant_current(),
+           bq25896_get_charge_state());
 }
 
 void bq25896_set_precharge_current(uint16_t milliamps)
@@ -228,7 +231,8 @@ uint16_t bq25896_get_input_current_limit(void)
     return (toreturn * BQ25896_CURR_STEP) + BQ25896_CURR_MIN;
 }
 
-void bq25896_enable_adc(void){
+void bq25896_enable_adc(void)
+{
     uint8_t value;
     bq25896_read_register(0x02, &value, 1);
     value |= BIT(6);
@@ -236,26 +240,31 @@ void bq25896_enable_adc(void){
     bq25896_write_register(0x02, &value, 1);
 }
 
-void bq25896_disable_adc(void){
+void bq25896_disable_adc(void)
+{
     uint8_t value;
     bq25896_read_register(0x02, &value, 1);
     value &= (~BIT(7));
     bq25896_write_register(0x02, &value, 1);
 }
 
-void bq25896_enable_charge(void){
-    bq25896_set_register_bit(0x03,4);
+void bq25896_enable_charge(void)
+{
+    bq25896_set_register_bit(0x03, 4);
 }
 
-void bq25896_disable_charge(void){
-    bq25896_clear_register_bit(0x03,4);
+void bq25896_disable_charge(void)
+{
+    bq25896_clear_register_bit(0x03, 4);
 }
 
-bool bq25896_get_charge_state(void){
+bool bq25896_get_charge_state(void)
+{
     return bq25896_get_register_bit(0x03, 4);
 }
 
-void bq25896_enable_watchdog(bq25896_watchdog_timeout_t timeout){
+void bq25896_enable_watchdog(bq25896_watchdog_timeout_t timeout)
+{
     uint8_t value;
     bq25896_read_register(0x07, &value, 1);
     value &= 0xCF;
@@ -270,17 +279,18 @@ void bq25896_enable_watchdog(bq25896_watchdog_timeout_t timeout){
     case TIMEOUT_160SEC:
         value |= 0x30;
         break;
-    
+
     default:
         break;
     }
     bq25896_write_register(0x0, &value, 1);
 }
 
-void bq25896_disable_watchdog(void){
+void bq25896_disable_watchdog(void)
+{
     uint8_t value;
     bq25896_read_register(0x07, &value, 1);
-    value &=0xCF;
+    value &= 0xCF;
     bq25896_write_register(0x07, &value, 1);
 }
 
@@ -330,4 +340,11 @@ bq25896_charge_status_t bq25896_get_charge_status()
     uint8_t value;
     bq25896_read_register(0x0B, &value, 1);
     return (bq25896_charge_status_t)((value >> 3) & 0x03);
+}
+
+void bq25896_reset_registers()
+{
+    bq25896_set_register_bit(0x14, 7);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    bq25896_clear_register_bit(0x14, 7);
 }

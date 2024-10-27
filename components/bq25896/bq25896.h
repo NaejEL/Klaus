@@ -81,3 +81,5 @@ uint16_t bq25896_get_power_off_voltage(void);
 
 uint8_t bq25896_get_devices_id(void);
 bq25896_charge_status_t bq25896_get_charge_status(void);
+
+void bq25896_reset_registers(void);

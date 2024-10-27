@@ -69,3 +69,5 @@ bool bq27220_get_is_charging(void);
 uint16_t bq27220_get_remaining_capacity(void);
 uint16_t bq27220_get_full_charge_capacity(void);
 uint16_t bq27220_get_state_of_charge(void);
+uint16_t bq27220_get_voltage(bq27220_voltage_mode_t mode);
+uint16_t bq27220_get_current(bq27220_current_mode_t mode);

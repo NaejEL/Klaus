@@ -2,22 +2,11 @@
 #include <dirent.h>
 static const char *TAG = "SD";
 
-//static const char *config_file = "config.json";
-
 static char *error_msg = "SD Error";
 
 static sdmmc_card_t *card;
 static bool sd_present = false;
 
-//static const cJSON *json;
-/*
-static esp_err_t sd_parse_json()
-{
-    json = cJSON_Parse(sd_get_file_content(config_file));
-    printf("Parsed Json:%s", cJSON_Print(json));
-    return ESP_OK;
-}
-*/
 esp_err_t sd_init(spi_host_device_t spi_host)
 {
     sdspi_device_config_t sd_device = SDSPI_DEVICE_CONFIG_DEFAULT();
@@ -29,7 +18,6 @@ esp_err_t sd_init(spi_host_device_t spi_host)
 
     sdmmc_host_t sd_host = SDSPI_HOST_DEFAULT();
     sd_host.slot = sd_handle;
-    //sd_host.max_freq_khz = 10000;
 
     sdmmc_card_t *card;
 
@@ -48,7 +36,7 @@ esp_err_t sd_init(spi_host_device_t spi_host)
     sdmmc_card_print_info(stdout, card);
     sd_present = true;
     sd_ls(MOUNT_POINT);
-    //sd_parse_json();
+
     return ESP_OK;
 }
 

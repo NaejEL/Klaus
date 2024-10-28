@@ -69,6 +69,10 @@
 
 #define SD_LOGO_REFRESH_RATE 3000
 
+#define WIFI_LOGO_REFRESH_RATE 1000
+
+#define CLOCK_REFRESH_RATE 100
+
 
 typedef enum
 {

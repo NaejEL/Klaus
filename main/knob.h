@@ -32,6 +32,6 @@
 #define KNOB_TRESHOLD (2)
 
 #define KNOB_QUEUE_SIZE (5)
-#define KNOB_TASK_STACK_SIZE (2400)
+#define KNOB_TASK_STACK_SIZE (3500)
 
 void knob_task(void *pvParameter);

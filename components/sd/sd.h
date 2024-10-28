@@ -5,8 +5,6 @@
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
 
-//#include <cJSON.h>
-
 #define SD_SPI_CS (GPIO_NUM_13)
 
 #define MOUNT_POINT "/KlausSD"

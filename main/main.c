@@ -32,6 +32,16 @@ static const char *TAG = "KlausFirmware";
 // SD
 #include "sd.h"
 
+// Wifi
+#include "wifi.h"
+
+// SNTP
+#include "clock.h"
+
+// Config
+#include "config.h"
+klaus_config_t klaus_config;
+
 static void i2c_init(void)
 {
     i2c_config_t conf = {};
@@ -68,6 +78,7 @@ void app_main(void)
 
     spi_init();
     sd_init(SPI_NUM);
+    config_parse_config(&klaus_config);
 
     i2c_init();
     battery_init(I2C_PORT_NUM);
@@ -78,4 +89,8 @@ void app_main(void)
     start_gui();
     keybtn_init();
     xTaskCreate(knob_task, "knob_task", KNOB_TASK_STACK_SIZE, NULL, 2, NULL);
+
+    wifi_init();
+    wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);
+    clock_set(klaus_config.timezone);
 }

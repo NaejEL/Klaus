@@ -1,36 +1,39 @@
-# Firmware for the Lilygo T-Embed CC1101 based on ESP-IDF
+# 🐡 Klaus
 
-[Shop Link](https://www.lilygo.cc/products/t-embed-cc1101)
+A cool firmware for the Lilygo T-Embed CC1101 based on ESP-IDF
 
-[Official Github](https://github.com/Xinyuan-LilyGO/T-Embed-CC1101)
+[Lilygo T-Embed Shop](https://www.lilygo.cc/products/t-embed-cc1101)
 
-## HardwareTodo
+[Lilygo T-Embed Official Github](https://github.com/Xinyuan-LilyGO/T-Embed-CC1101)
+
+## 👷 HardwareTodo
 
 - [x] Key buttons [Component](https://components.espressif.com/components/espressif/button/versions/3.3.2)
 - [x] Rotary encoder and key [PCNT](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/pcnt.html)
 - [x] Display [esp_lcd](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/lcd/index.html)
 - [ ] WS2812 [Component](https://components.espressif.com/components/espressif/led_strip/versions/2.5.5)
-- [ ] SD SPI [sd_spi](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/sdspi_host.html)
+- [x] SD SPI [sd_spi](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/sdspi_host.html)
 - [x] Battery PPM
+- [x] Wifi
 - [ ] PN532
 - [ ] IR [RMT](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/rmt.html)
 - [ ] CC1101 [Component](https://components.espressif.com/components/jgromes/radiolib/versions/7.0.2)
 - [ ] Speaker & Microphone [Component](https://components.espressif.com/components/espressif/esp_codec_dev/versions/1.3.1)
 - [ ] Portable Firmware [esp-bsp](https://github.com/espressif/esp-bsp/)
 
-## Software ToDo
+## 👷 Software ToDo
 
 - [x] LVGL [Component](https://components.espressif.com/components/espressif/esp_lvgl_port/versions/2.4.1)
 
-- [ ] GUI
+- [ ] Better GUI LVGL screen based
 
-- [ ] Config from SD
+- [x] Config from SD
 
 - [ ] Audio Recoder
 
 - [ ] Audio player
 
-- [ ] NTP Clock
+- [x] NTP Clock
 
 - [ ] Wifi Pentest
 

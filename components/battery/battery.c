@@ -1,5 +1,8 @@
 #include "battery.h"
 
+#include "bq27220.h"
+#include "bq25896.h"
+
 void battery_init(i2c_port_t i2c_port)
 {
     bq25896_init(i2c_port);

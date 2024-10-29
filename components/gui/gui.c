@@ -1,18 +1,24 @@
-#include "display.h"
+#include "gui.h"
 
-#include "battery.h"
+static const char *TAG = "GUI";
+
+#include "display.h"
+#include "clock.h"
 #include "sd.h"
 #include "wifi.h"
-#include "clock.h"
+#include "userinputs.h"
+#include "battery.h"
 
-static const char *TAG = "Display";
+// LVGL
+#include "esp_lvgl_port.h"
 
-static bool backlight_state = false;
+#define BACKGROUND_COLOR (0x9BCDEF)
+#define FOREGROUND_COLOR (0xF79347)
 
-static esp_lcd_panel_io_handle_t io_handle = NULL;
-static esp_lcd_panel_handle_t panel_handle = NULL;
-
-static esp_err_t display_backlight_init(void);
+#define BATTERY_BAR_REFRESH_RATE 300
+#define SD_LOGO_REFRESH_RATE 3000
+#define WIFI_LOGO_REFRESH_RATE 1000
+#define CLOCK_REFRESH_RATE 100
 
 // LVGL Display handler
 static lv_display_t *lvgl_disp = NULL;
@@ -40,108 +46,7 @@ lv_obj_t *wifi_logo = NULL;
 // Time
 lv_obj_t *time_label = NULL;
 
-esp_err_t display_init(spi_host_device_t spi_host)
-{
-    ESP_LOGD(TAG, "Install panel IO");
-    const esp_lcd_panel_io_spi_config_t io_config = {
-        .cs_gpio_num = LCD_SPI_CS,
-        .dc_gpio_num = LCD_DC,
-        .spi_mode = 0,
-        .pclk_hz = LCD_PIXEL_CLOCK_HZ,
-        .trans_queue_depth = LCD_QUEUE_SIZE,
-        .lcd_cmd_bits = LCD_CMD_BITS,
-        .lcd_param_bits = LCD_PARAM_BITS,
-    };
-    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host, &io_config, &io_handle), TAG, "LCD new panel IO SPI failed");
-
-    ESP_LOGD(TAG, "Install LCD driver");
-    const esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = LCD_RST,
-        .color_space = LCD_COLOR_SPACE,
-        .bits_per_pixel = LCD_BITS_PER_PIXEL,
-    };
-    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle), TAG, "Create LCD panel failed");
-
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_reset(panel_handle), TAG, "LCD Panel Reset failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_handle), TAG, "LCD panel init failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_swap_xy(panel_handle, LCD_SWAP_XY), TAG, "LCD panel swap X/Y failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_mirror(panel_handle, LCD_MIRROR_X, LCD_MIRROR_Y), TAG, "LCD panel mirror failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_invert_color(panel_handle, LCD_INVERT_COLOR), TAG, "LCD panel invert color failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_set_gap(panel_handle, LCD_X_GAP, LCD_Y_GAP), TAG, "LCD panel set gap failed");
-    ESP_RETURN_ON_ERROR(display_backlight_init(), TAG, "LCD backlight init failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_disp_on_off(panel_handle, true), TAG, "LCD Panel turn on failed");
-    return ESP_OK;
-}
-
-static esp_err_t display_backlight_init(void)
-{
-    return gpio_set_direction(LCD_BACKLIGHT, GPIO_MODE_OUTPUT);
-}
-
-void display_backlight_on(void)
-{
-    gpio_set_level(LCD_BACKLIGHT, 1);
-    backlight_state = true;
-}
-
-void display_backlight_off(void)
-{
-    gpio_set_level(LCD_BACKLIGHT, 0);
-    backlight_state = false;
-}
-
-void display_backlight_toggle(void)
-{
-    if (backlight_state)
-    {
-        display_backlight_off();
-    }
-    else
-    {
-        display_backlight_on();
-    }
-}
-
-esp_err_t lvgl_init(void)
-{
-    const lvgl_port_cfg_t lvgl_cfg = {
-        .task_priority = 4,       /* LVGL task priority */
-        .task_stack = 6144,       /* LVGL task stack size */
-        .task_affinity = -1,      /* LVGL task pinned to core (-1 is no affinity) */
-        .task_max_sleep_ms = 500, /* Maximum sleep in LVGL task */
-        .timer_period_ms = 15     /* LVGL timer tick period in ms */
-    };
-    ESP_RETURN_ON_ERROR(lvgl_port_init(&lvgl_cfg), TAG, "LVGL port initialization failed");
-
-    ESP_LOGD(TAG, "Attach screen to LVGL");
-    const lvgl_port_display_cfg_t disp_cfg = {
-        .io_handle = io_handle,
-        .panel_handle = panel_handle,
-        .buffer_size = LCD_DRAW_BUFF_SIZE,
-        .double_buffer = LCD_DRAW_BUFF_DOUBLE,
-        .hres = LCD_H_RES,
-        .vres = LCD_V_RES,
-        .monochrome = false,
-        .rotation = {
-            .swap_xy = LCD_SWAP_XY,
-            .mirror_x = LCD_MIRROR_X,
-            .mirror_y = LCD_MIRROR_Y,
-        },
-        .flags = {
-            .buff_dma = LCD_USE_DMA,
-            .buff_spiram = LCD_USE_SPIRAM,
-            .sw_rotate = false,
-            .swap_bytes = LCD_BIGENDIAN,
-            .full_refresh = false,
-            .direct_mode = false,
-        }};
-
-    lvgl_disp = lvgl_port_add_disp(&disp_cfg);
-
-    return ESP_OK;
-}
-
-void batteryTask(void *pvParameters)
+static void batteryTask(void *pvParameters)
 {
     while (1)
     {
@@ -162,7 +67,7 @@ void batteryTask(void *pvParameters)
     }
 }
 
-void sdTask(void *pvParam)
+static void sdTask(void *pvParam)
 {
     while (1)
     {
@@ -180,7 +85,7 @@ void sdTask(void *pvParam)
     }
 }
 
-void wifiTask(void *pvParam)
+static void wifiTask(void *pvParam)
 {
     while (1)
     {
@@ -203,17 +108,18 @@ void wifiTask(void *pvParam)
     }
 }
 
-void clockTask(void* pvParam){
-while (1)
+static void clockTask(void *pvParam)
+{
+    while (1)
     {
         lvgl_port_lock(0);
-        lv_label_set_text(time_label,clock_get_time());
+        lv_label_set_text(time_label, clock_get_time());
         lvgl_port_unlock();
         vTaskDelay(CLOCK_REFRESH_RATE / portTICK_PERIOD_MS);
     }
 }
 
-void user_action(user_actions_t action)
+static void user_action(user_actions_t action)
 {
     switch (action)
     {
@@ -241,7 +147,46 @@ void user_action(user_actions_t action)
     }
 }
 
-void start_gui(void)
+esp_err_t gui_init()
+{
+    const lvgl_port_cfg_t lvgl_cfg = {
+        .task_priority = 4,       /* LVGL task priority */
+        .task_stack = 6144,       /* LVGL task stack size */
+        .task_affinity = -1,      /* LVGL task pinned to core (-1 is no affinity) */
+        .task_max_sleep_ms = 500, /* Maximum sleep in LVGL task */
+        .timer_period_ms = 15     /* LVGL timer tick period in ms */
+    };
+    ESP_RETURN_ON_ERROR(lvgl_port_init(&lvgl_cfg), TAG, "LVGL port initialization failed");
+
+    ESP_LOGD(TAG, "Attach screen to LVGL");
+    const lvgl_port_display_cfg_t disp_cfg = {
+        .io_handle = display_get_io_handle(),
+        .panel_handle = display_get_panel_handle(),
+        .buffer_size = LCD_DRAW_BUFF_SIZE,
+        .double_buffer = LCD_DRAW_BUFF_DOUBLE,
+        .hres = LCD_H_RES,
+        .vres = LCD_V_RES,
+        .monochrome = false,
+        .rotation = {
+            .swap_xy = LCD_SWAP_XY,
+            .mirror_x = LCD_MIRROR_X,
+            .mirror_y = LCD_MIRROR_Y,
+        },
+        .flags = {
+            .buff_dma = LCD_USE_DMA,
+            .buff_spiram = LCD_USE_SPIRAM,
+            .sw_rotate = false,
+            .swap_bytes = LCD_BIGENDIAN,
+            .full_refresh = false,
+            .direct_mode = false,
+        }};
+
+    lvgl_disp = lvgl_port_add_disp(&disp_cfg);
+    userinputs_register_callback(&user_action);
+    return ESP_OK;
+}
+
+void gui_start()
 {
     lvgl_port_lock(0);
     lv_obj_t *scr = lv_scr_act();
@@ -274,8 +219,8 @@ void start_gui(void)
 
     // Time Label
     time_label = lv_label_create(scr);
-    lv_obj_align(time_label, LV_ALIGN_TOP_LEFT, 208, 2);
-    lv_label_set_text(time_label,"");
+    lv_obj_align(time_label, LV_ALIGN_TOP_LEFT, 205, 2);
+    lv_label_set_text(time_label, "");
 
     // Bars Style
     static lv_style_t bar_indic;

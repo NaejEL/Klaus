@@ -5,16 +5,8 @@
 
 static const char *TAG = "KlausFirmware";
 
-// GUI
-#include "display.h"
-
-// Key Button
-#include "keybtn.h"
-
-// knob
-#include "knob.h"
-
 // I2C
+#include <driver/i2c.h>
 #define SDA_PIN (GPIO_NUM_8)
 #define SCL_PIN (GPIO_NUM_18)
 #define I2C_PORT_NUM I2C_NUM_0
@@ -26,19 +18,13 @@ static const char *TAG = "KlausFirmware";
 #define SPI_CLK (GPIO_NUM_11)
 #define SPI_NUM (SPI2_HOST)
 
-// Battery
+#include "userinputs.h"
+#include "display.h"
+#include "gui.h"
 #include "battery.h"
-
-// SD
 #include "sd.h"
-
-// Wifi
 #include "wifi.h"
-
-// SNTP
 #include "clock.h"
-
-// Config
 #include "config.h"
 klaus_config_t klaus_config;
 
@@ -65,7 +51,6 @@ static esp_err_t spi_init(void)
         .quadhd_io_num = GPIO_NUM_NC,
         .max_transfer_sz = 0,
     };
-    ESP_LOGD(TAG, "Initialize SPI bus");
     ESP_RETURN_ON_ERROR(spi_bus_initialize(SPI_NUM, &spi_bus_cfg, SPI_DMA_CH_AUTO), TAG, "Initialize SPI bus failed");
     return ESP_OK;
 }
@@ -76,6 +61,8 @@ void app_main(void)
     gpio_set_direction(GPIO_NUM_15, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_NUM_15, 1);
 
+    userinputs_init();
+
     spi_init();
     sd_init(SPI_NUM);
     config_parse_config(&klaus_config);
@@ -85,10 +72,8 @@ void app_main(void)
 
     display_init(SPI_NUM);
     display_backlight_on();
-    lvgl_init();
-    start_gui();
-    keybtn_init();
-    xTaskCreate(knob_task, "knob_task", KNOB_TASK_STACK_SIZE, NULL, 2, NULL);
+    gui_init();
+    gui_start();
 
     wifi_init();
     wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);

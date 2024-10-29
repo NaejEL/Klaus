@@ -1,0 +1,2 @@
+dependencies:
+  espressif/button: "^3.3.2"

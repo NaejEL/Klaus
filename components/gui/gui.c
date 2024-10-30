@@ -7,7 +7,7 @@ static const char *TAG = "GUI";
 #include "display.h"
 #include "gui_commons.h"
 #include "status_bar.h"
-#include "main_menu_view.h"
+#include "test_view.h"
 #include "splash_view.h"
 
 // LVGL
@@ -16,42 +16,25 @@ static const char *TAG = "GUI";
 // LVGL Display handler
 static lv_display_t *lvgl_disp = NULL;
 
-// LVGL images declaration
-LV_IMG_DECLARE(klaus_dab_126x85);
+// Screens
+static lv_obj_t *common_screen;
+
+// view handler
+static view_handler_t *current_view_handler;
 
 static void user_action(user_actions_t action)
 {
-    switch (action)
+    if (action == KEY_CLICK_LONG)
     {
-    case WHEEL_UP:
-        break;
-
-    case WHEEL_DOWN:
-        break;
-
-    case WHEEL_CLICK_SHORT:
-        if (active_view == SPLASH_VIEW)
-        {
-            main_menu_view_draw();
-        }
-        break;
-
-    case WHEEL_CLICK_LONG:
-        break;
-
-    case KEY_CLICK_LONG:
         display_backlight_toggle();
-        break;
-
-    case KEY_CLICK_SHORT:
-        if (active_view != SPLASH_VIEW)
-        {
-            splash_view_draw();
-        }
-        break;
-
-    default:
-        break;
+    }
+    else if (action == WHEEL_CLICK_SHORT && current_view_handler == splash_view_get_handler())
+    {
+        test_view_get_handler()->draw_view(current_view_handler);
+    }
+    else
+    {
+        current_view_handler->input_callback(action);
     }
 }
 
@@ -96,7 +79,11 @@ esp_err_t gui_init()
     lvgl_port_unlock();
 
     userinputs_register_callback(&user_action);
-    splash_view_draw();
+    // Init all view
+    splash_view_init();
+    test_view_init();
+    current_view_handler = splash_view_get_handler();
+    current_view_handler->draw_view(current_view_handler);
     status_bar_init();
     return ESP_OK;
 }

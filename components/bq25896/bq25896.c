@@ -66,7 +66,7 @@ void bq25896_init(i2c_port_t _i2c_port)
     bq25896_enable_adc();
     bq25896_disable_watchdog();
     bq25896_enable_charge();
-    //bq25896_reset_registers();
+    bq25896_reset_registers();
 
     printf("%s:\n \
     Device ID:0x%02x\n \

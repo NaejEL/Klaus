@@ -1,35 +1,24 @@
 #pragma once
 
+#include "userinputs.h"
+
 // LVGL
 #include "esp_lvgl_port.h"
 
-/*
-typedef struct {
-view_t view;    //
-userinputs_callback();              // user inputs handler
-init_view();                        // xTaskCreate
-draw_view(view_t calling view);     // vTaskResume
-clear_view();                       // lv_obj_clean, vTaskSuspend
-} view_handler_t;
-*/
+typedef struct view_handler_t view_handler_t;
 
-typedef enum
+typedef void (*init_view)();
+typedef void (*draw_view)(view_handler_t* calling_view);
+typedef void (*clear_view)();
+
+//init_view init_view;                // xTaskCreate
+struct view_handler_t
 {
-    SPLASH_VIEW,
-    MAIN_MENU_VIEW
-} view_t;
-
-// Screens
-lv_obj_t *common_screen;
-lv_obj_t *main_screen;
-
-// Navigation handler
-lv_obj_t *current_view = NULL;
-view_t active_view;
-
-// Views
-lv_obj_t *splash_view;
-lv_obj_t *main_menu_view;
+    lv_obj_t *obj_view; // lvgl view object
+    userinputs_callback input_callback; // user inputs handler
+    draw_view draw_view;                // vTaskResume
+    clear_view clear_view;              // lv_obj_clean, vTaskSuspend
+};
 
 #define MAIN_SCREEN_HEIGHT (150)
 #define MAIN_SCREEN_WIDTH (320)

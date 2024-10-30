@@ -1,0 +1,56 @@
+#pragma once
+
+// LVGL
+#include "esp_lvgl_port.h"
+
+#include "gui_commons.h"
+
+#define MAIN_SCREEN_HEIGHT (150)
+#define MAIN_SCREEN_WIDTH (320)
+
+// LVGL images declaration
+LV_IMG_DECLARE(klaus_112x85);
+
+// Splash screen
+lv_obj_t *splash_screen;
+
+// Background Image
+lv_obj_t *splash_image;
+
+void splash_screen_draw(){
+    lvgl_port_lock(0);
+    splash_screen = lv_obj_create(NULL);
+    lv_scr_load(splash_screen);
+    lv_obj_set_size(splash_screen, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
+    lv_obj_align(splash_screen, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    // Set splash screen style
+    static lv_style_t splash_screen_style;
+    lv_style_init(&splash_screen_style);
+    lv_style_reset(&splash_screen_style);
+    lv_style_set_bg_color(&splash_screen_style, lv_color_hex(BACKGROUND_COLOR));
+    lv_style_set_text_color(&splash_screen_style, lv_color_hex(TEXT_COLOR));
+    lv_style_set_radius(&splash_screen_style, 0);
+    lv_style_set_border_width(&splash_screen_style, 0);
+    lv_style_set_pad_all(&splash_screen_style, 0);
+    lv_obj_add_style(splash_screen, &splash_screen_style, LV_PART_MAIN);
+    // Add a gradient to background
+    lv_color_t back_color = lv_color_hex(BACKGROUND_COLOR);
+    lv_color_t back_grad_color = lv_color_hex(BACKGROUND_GRAD_COLOR);
+
+    lv_color_t grad_colors[2] = {
+        back_grad_color,
+        back_color,
+    };
+    static lv_grad_dsc_t grad;
+    lv_gradient_init_stops(&grad, grad_colors, NULL, NULL, sizeof(grad_colors) / sizeof(lv_color_t));
+    lv_grad_radial_init(&grad, LV_GRAD_CENTER, LV_GRAD_CENTER, LV_GRAD_RIGHT, LV_GRAD_BOTTOM, LV_GRAD_EXTEND_PAD);
+    lv_style_set_bg_grad(&splash_screen_style, &grad);
+    
+    lv_obj_add_style(splash_screen, &splash_screen_style, 0);
+
+    splash_image = lv_image_create(splash_screen);
+    lv_image_set_src(splash_image, &klaus_112x85);
+    lv_obj_align(splash_image, LV_ALIGN_CENTER, 0, 0);
+    lvgl_port_unlock();
+}

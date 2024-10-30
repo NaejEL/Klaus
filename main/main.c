@@ -73,7 +73,6 @@ void app_main(void)
     display_init(SPI_NUM);
     display_backlight_on();
     gui_init();
-    gui_start();
 
     wifi_init();
     wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);

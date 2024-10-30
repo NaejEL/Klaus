@@ -1,11 +1,11 @@
 idf_component_register(
     SRCS "gui.c"
-    INCLUDE_DIRS .
+    INCLUDE_DIRS . screens
     PRIV_REQUIRES display userinputs sd wifi clock battery
     )
 
 # Convert image to C Array usibng LVGL tools
-# lvgl_port_create_c_image("images_png/klaus_112x85.png" "images_c/" "RGB565A8" "NONE")
+lvgl_port_create_c_image("images_png/klaus_112x85.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/klaus_dab_126x85.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/battery_15.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/sd_15.png" "images_c/" "RGB565A8" "NONE")

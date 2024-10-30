@@ -121,9 +121,7 @@ static void status_bar_draw()
 {
     lvgl_port_lock(0);
 
-    lv_obj_t *scr = lv_scr_act();
-
-    status_bar = lv_obj_create(scr);
+    status_bar = lv_obj_create(lv_screen_active());
     lv_obj_set_size(status_bar, STATUS_BAR_WIDTH, STATUS_BAR_HEIGHT);
     lv_obj_align(status_bar, LV_ALIGN_TOP_LEFT, 0, 0);
 

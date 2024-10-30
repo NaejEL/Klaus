@@ -3,6 +3,12 @@
 // LVGL
 #include "esp_lvgl_port.h"
 
+lv_obj_t *common_screen;
+lv_obj_t *main_screen;
+
+// Splash screen
+lv_obj_t *splash_screen;
+
 #define BACKGROUND_COLOR (0x353D4D)
 #define BACKGROUND_GRAD_COLOR (0x0AB2A0)
 

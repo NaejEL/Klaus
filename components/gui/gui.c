@@ -81,7 +81,11 @@ esp_err_t gui_init()
         }};
 
     lvgl_disp = lvgl_port_add_disp(&disp_cfg);
-    
+
+    lvgl_port_lock(0);
+    common_screen = lv_obj_create(NULL);
+    lvgl_port_unlock();
+
     userinputs_register_callback(&user_action);
     splash_screen_draw();
     status_bar_init();

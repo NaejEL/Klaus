@@ -11,18 +11,15 @@
 // LVGL images declaration
 LV_IMG_DECLARE(klaus_112x85);
 
-// Splash screen
-lv_obj_t *splash_screen;
-
 // Background Image
 lv_obj_t *splash_image;
 
 void splash_screen_draw(){
     lvgl_port_lock(0);
-    splash_screen = lv_obj_create(NULL);
-    lv_scr_load(splash_screen);
+    splash_screen = lv_obj_create(lv_screen_active());
+
     lv_obj_set_size(splash_screen, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
-    lv_obj_align(splash_screen, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_align(splash_screen, LV_ALIGN_TOP_LEFT, 0, 20);
 
     // Set splash screen style
     static lv_style_t splash_screen_style;

@@ -7,7 +7,8 @@ static const char *TAG = "GUI";
 #include "display.h"
 #include "gui_commons.h"
 #include "status_bar.h"
-#include "splash_screen.h"
+#include "main_menu_view.h"
+#include "splash_view.h"
 
 // LVGL
 #include "esp_lvgl_port.h"
@@ -29,6 +30,10 @@ static void user_action(user_actions_t action)
         break;
 
     case WHEEL_CLICK_SHORT:
+        if (active_view == SPLASH_VIEW)
+        {
+            main_menu_view_draw();
+        }
         break;
 
     case WHEEL_CLICK_LONG:
@@ -39,6 +44,10 @@ static void user_action(user_actions_t action)
         break;
 
     case KEY_CLICK_SHORT:
+        if (active_view != SPLASH_VIEW)
+        {
+            splash_view_draw();
+        }
         break;
 
     default:
@@ -87,7 +96,7 @@ esp_err_t gui_init()
     lvgl_port_unlock();
 
     userinputs_register_callback(&user_action);
-    splash_screen_draw();
+    splash_view_draw();
     status_bar_init();
     return ESP_OK;
 }

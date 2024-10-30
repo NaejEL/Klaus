@@ -1,6 +1,6 @@
 idf_component_register(
     SRCS "gui.c"
-    INCLUDE_DIRS . screens
+    INCLUDE_DIRS . views
     PRIV_REQUIRES display userinputs sd wifi clock battery
     )
 

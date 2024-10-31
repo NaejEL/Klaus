@@ -6,5 +6,3 @@
 #include "esp_check.h"
 
 esp_err_t gui_init(void);
-
-void gui_start(void);

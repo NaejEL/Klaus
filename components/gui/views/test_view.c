@@ -5,7 +5,6 @@ static view_handler_t* calling_view;
 static lv_obj_t *test_view;
 static view_handler_t test_view_handler;
 
-//
 static lv_obj_t *test_label;
 
 static void test_input_handler(user_actions_t user_action)

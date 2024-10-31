@@ -3,11 +3,12 @@
 static const char *TAG = "GUI";
 
 #include "userinputs.h"
-
 #include "display.h"
-#include "gui_commons.h"
+
+#include "style.h"
+#include "view_commons.h"
 #include "status_bar.h"
-#include "test_view.h"
+#include "main_menu_view.h"
 #include "splash_view.h"
 
 // LVGL
@@ -30,7 +31,7 @@ static void user_action(user_actions_t action)
     }
     else if (action == WHEEL_CLICK_SHORT && current_view_handler == splash_view_get_handler())
     {
-        test_view_get_handler()->draw_view(current_view_handler);
+        main_menu_view_get_handler()->draw_view(current_view_handler);
     }
     else
     {
@@ -79,9 +80,10 @@ esp_err_t gui_init()
     lvgl_port_unlock();
 
     userinputs_register_callback(&user_action);
-    // Init all view
+    style_init();
+    // Init all views
     splash_view_init();
-    test_view_init();
+    main_menu_view_init();
     current_view_handler = splash_view_get_handler();
     current_view_handler->draw_view(current_view_handler);
     status_bar_init();

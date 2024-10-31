@@ -1,7 +1,8 @@
 #pragma once
 
 #include "esp_lvgl_port.h"
-#include "gui_commons.h"
+#include "style.h"
+#include "view_commons.h"
 
 void splash_view_init(void);
 

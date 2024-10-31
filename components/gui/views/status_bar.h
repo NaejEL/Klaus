@@ -3,7 +3,7 @@
 // LVGL
 #include "esp_lvgl_port.h"
 
-#include "gui_commons.h"
+#include "view_commons.h"
 
 #include "display.h"
 #include "clock.h"

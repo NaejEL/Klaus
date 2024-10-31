@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "test_view.c" "splash_view.c" 
+    SRCS "test_view.c" "splash_view.c" "main_menu_view"
     INCLUDE_DIRS .
     PRIV_REQUIRES display userinputs
     )

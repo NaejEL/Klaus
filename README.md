@@ -25,7 +25,7 @@ A cool firmware for the Lilygo T-Embed CC1101 based on ESP-IDF
 
 - [x] LVGL [Component](https://components.espressif.com/components/espressif/esp_lvgl_port/versions/2.4.1)
 
-- [ ] Better GUI LVGL screen based
+- [x] Better GUI LVGL screen based
 
 - [x] Config from SD
 

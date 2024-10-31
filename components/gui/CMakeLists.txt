@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "gui.c" views/splash_view.c views/test_view.c
+    SRCS "gui.c" "style.c" views/splash_view.c views/test_view.c views/main_menu_view.c
     INCLUDE_DIRS . views
     PRIV_REQUIRES display userinputs sd wifi clock battery
     )
@@ -15,6 +15,7 @@ lvgl_port_create_c_image("images_png/sd_15.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/charge_15.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/wifi_ok_15.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/wifi_nok_15.png" "images_c/" "RGB565A8" "NONE")
+lvgl_port_create_c_image("images_png/wifi_107x85.png" "images_c/" "RGB565A8" "NONE")
 
 # Add generated images to build
 lvgl_port_add_images(${COMPONENT_LIB} "images_c/")

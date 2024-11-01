@@ -1,4 +1,6 @@
 #include "main_menu_view.h"
+#include "wifi_menu_view.h"
+#include "splash_view.h"
 
 static view_handler_t *calling_view;
 
@@ -28,6 +30,7 @@ static void main_menu_input_handler(user_actions_t user_action)
     switch (user_action)
     {
     case KEY_CLICK_SHORT:
+        splash_view_get_handler()->draw_view(main_menu_view_get_handler());
         break;
     case WHEEL_UP:
         current_item++;
@@ -39,6 +42,10 @@ static void main_menu_input_handler(user_actions_t user_action)
         lv_image_set_src(main_menu_image, image_list[current_item]);
         lvgl_port_unlock();
         break;
+    case WHEEL_CLICK_SHORT:
+        if(current_item==MAIN_MENU_WIFI){
+            wifi_menu_view_get_handler()->draw_view(get_current_view_handler());
+        }
     default:
         break;
     }
@@ -54,11 +61,12 @@ static void main_menu_view_clear()
 static void main_menu_view_draw(view_handler_t *_calling_view)
 {
     calling_view = _calling_view;
-    lvgl_port_lock(0);
     if (calling_view != main_menu_view_get_handler())
     {
         calling_view->clear_view();
     }
+    set_current_view_handler(main_menu_view_get_handler());
+    lvgl_port_lock(0);
     main_menu_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(main_menu_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(main_menu_view, LV_ALIGN_TOP_LEFT, 0, 20);
@@ -68,13 +76,10 @@ static void main_menu_view_draw(view_handler_t *_calling_view)
     lv_image_set_src(main_menu_image, image_list[current_item]);
     lv_obj_align(main_menu_image, LV_ALIGN_CENTER, 0, -15);
 
-    // Menu font
-    static lv_style_t bigfont;
-    lv_style_set_text_font(&bigfont, &lv_font_montserrat_22);
     wifi_label = lv_label_create(main_menu_view);
     lv_label_set_text(wifi_label, "WiFi");
     lv_obj_align(wifi_label, LV_ALIGN_CENTER, 0, 50);
-    lv_obj_add_style(wifi_label, &bigfont, LV_PART_MAIN);
+    lv_obj_add_style(wifi_label, get_bigfont_style(), LV_PART_MAIN);
 
     lvgl_port_unlock();
 }
@@ -86,6 +91,7 @@ void main_menu_view_init(void)
     main_menu_view_handler.draw_view = main_menu_view_draw;
     main_menu_view_handler.clear_view = main_menu_view_clear;
     current_item = MAIN_MENU_WIFI;
+    wifi_menu_view_init();
 }
 
 view_handler_t *main_menu_view_get_handler(void)

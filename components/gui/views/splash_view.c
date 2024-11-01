@@ -71,11 +71,12 @@ static void splash_input_handler(user_actions_t user_action)
 static void splash_view_draw(view_handler_t *_calling_view)
 {
     calling_view = _calling_view;
-    lvgl_port_lock(0);
     if (calling_view != splash_view_get_handler())
     {
         calling_view->clear_view();
     }
+    set_current_view_handler(splash_view_get_handler());
+    lvgl_port_lock(0);
     splash_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(splash_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(splash_view, LV_ALIGN_TOP_LEFT, 0, 20);

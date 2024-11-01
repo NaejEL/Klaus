@@ -20,22 +20,23 @@ static lv_display_t *lvgl_disp = NULL;
 // Screens
 static lv_obj_t *common_screen;
 
+/*
 // view handler
 static view_handler_t *current_view_handler;
-
+*/
 static void user_action(user_actions_t action)
 {
     if (action == KEY_CLICK_LONG)
     {
         display_backlight_toggle();
     }
-    else if (action == WHEEL_CLICK_SHORT && current_view_handler == splash_view_get_handler())
+    else if (action == WHEEL_CLICK_SHORT && get_current_view_handler() == splash_view_get_handler())
     {
-        main_menu_view_get_handler()->draw_view(current_view_handler);
+        main_menu_view_get_handler()->draw_view(get_current_view_handler());
     }
     else
     {
-        current_view_handler->input_callback(action);
+        get_current_view_handler()->input_callback(action);
     }
 }
 
@@ -84,8 +85,8 @@ esp_err_t gui_init()
     // Init all views
     splash_view_init();
     main_menu_view_init();
-    current_view_handler = splash_view_get_handler();
-    current_view_handler->draw_view(current_view_handler);
+    set_current_view_handler(splash_view_get_handler());
+    get_current_view_handler()->draw_view(get_current_view_handler());
     status_bar_init();
     return ESP_OK;
 }

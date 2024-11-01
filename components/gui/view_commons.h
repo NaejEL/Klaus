@@ -18,3 +18,12 @@ struct view_handler_t
     draw_view draw_view;                // vTaskResume
     clear_view clear_view;              // lv_obj_clean, vTaskSuspend
 };
+
+view_handler_t* get_current_view_handler(void);
+
+void set_current_view_handler(view_handler_t* view_handler);
+
+struct sub_menu_t {
+view_handler_t *parent_menu;
+view_handler_t *sub_menu;
+};

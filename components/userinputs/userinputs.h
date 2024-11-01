@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esp_err.h"
-
+#include <stdbool.h>
 typedef enum
 {
     WHEEL_UP,
@@ -17,3 +17,4 @@ typedef void (*userinputs_callback)(user_actions_t user_action);
 esp_err_t userinputs_init(void);
 
 void userinputs_register_callback(userinputs_callback callback);
+void userinputs_set_ignore(bool ignore);

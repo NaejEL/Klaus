@@ -2,6 +2,8 @@
 
 A cool firmware for the Lilygo T-Embed CC1101 based on ESP-IDF
 
+This firmware is largely inspired by the awesome [BRUCE](https://github.com/pr3y/Bruce) firmware.
+
 [Lilygo T-Embed Shop](https://www.lilygo.cc/products/t-embed-cc1101)
 
 [Lilygo T-Embed Official Github](https://github.com/Xinyuan-LilyGO/T-Embed-CC1101)
@@ -35,7 +37,7 @@ A cool firmware for the Lilygo T-Embed CC1101 based on ESP-IDF
 
 - [x] NTP Clock
 
-- [ ] Wifi Pentest
+- [ ] Wifi Pentest [example](https://github.com/risinek/esp32-wifi-penetration-tool/tree/master)
 
 - [ ] IR Pentest
 

@@ -50,9 +50,13 @@ static pcnt_unit_handle_t pcnt_unit = NULL;
 static size_t userinput_callback_capacity = 10;
 static size_t userinput_callback_registrered = 0;
 userinputs_callback *userinputs_callbacks;
+static bool ignore = false;
 
 static void userinputs_parse_callbacks(user_actions_t action)
 {
+    if(ignore){
+        return;
+    }
     for (size_t i = 0; i < userinput_callback_registrered; i++)
     {
         userinputs_callbacks[i](action);
@@ -237,4 +241,8 @@ void userinputs_register_callback(userinputs_callback callback)
     }
     userinput_callback_registrered++;
     userinputs_callbacks[userinput_callback_registrered - 1] = callback;
+}
+
+void userinputs_set_ignore(bool _ignore){
+    ignore = _ignore;
 }

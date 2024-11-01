@@ -1,7 +1,6 @@
 #include "wifi.h"
 
 #include "nvs_flash.h"
-#include "esp_wifi.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -70,7 +69,7 @@ esp_err_t wifi_init(void)
     s_wifi_event_group = xEventGroupCreate();
     ESP_RETURN_ON_ERROR(esp_netif_init(), TAG, "Cannot init netif");
 
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_event_loop_create_default();
     netif = esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -100,8 +99,8 @@ esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostnam
 {
     esp_netif_set_hostname(netif, hostname);
     wifi_config_t wifi_config;
-    strcpy((char *)wifi_config.sta.ssid,(char *)_ssid);
-    strcpy((char *)wifi_config.sta.password,(char *)_pass);
+    strcpy((char *)wifi_config.sta.ssid, (char *)_ssid);
+    strcpy((char *)wifi_config.sta.password, (char *)_pass);
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -133,4 +132,12 @@ esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostnam
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
     return ESP_OK;
+}
+
+void wifi_launch_scan(void){
+    wifi_scan_config_t scan_config;
+    memset(&scan_config, 0, sizeof(wifi_scan_config_t));
+    scan_config.show_hidden = true;
+    scan_config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
+    esp_wifi_scan_start(&scan_config, false);
 }

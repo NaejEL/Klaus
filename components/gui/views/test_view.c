@@ -9,6 +9,9 @@ static lv_obj_t *test_label;
 
 static void test_input_handler(user_actions_t user_action)
 {
+    if(user_action==KEY_CLICK_SHORT){
+        calling_view->draw_view(test_view_get_handler());
+    }
 }
 
 static void test_view_clear()
@@ -21,14 +24,15 @@ static void test_view_clear()
 static void test_view_draw(view_handler_t* _calling_view)
 {
     calling_view = _calling_view;
-    lvgl_port_lock(0);
     if(calling_view!=test_view_get_handler()){
       calling_view->clear_view();  
     }
-
+    set_current_view_handler(test_view_get_handler());
+    lvgl_port_lock(0);
     test_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(test_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(test_view, LV_ALIGN_TOP_LEFT, 0, 20);
+    lv_obj_add_style(test_view, get_background_style(), LV_PART_MAIN);
 
     test_label = lv_label_create(test_view);
     lv_obj_align(test_label, LV_ALIGN_CENTER, 0, 0);

@@ -3,6 +3,7 @@
 /components/gui/images_c
 /.vscode
 /.devcontainer
+/partition_table
 sdkconfig
 sdkconfig.old
 dependencies.lock

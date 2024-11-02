@@ -17,3 +17,5 @@ esp_err_t wifi_connect(const char *ssid, const char *pass, const char *hostname)
 bool wifi_get_state(void);
 int wifi_get_rssi(void);
 void wifi_launch_scan(void);
+const char* wifi_get_auth_string(wifi_auth_mode_t authmode);
+const char* wifi_get_cipher_string(wifi_cipher_type_t cipher_type);

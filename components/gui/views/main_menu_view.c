@@ -16,14 +16,16 @@ typedef enum
 
 static main_menu_items_t current_item;
 
-// Wifi
-static lv_obj_t *wifi_label;
-LV_IMG_DECLARE(wifi_107x85);
+static lv_obj_t *current_item_label;
 
 // Menu images
+LV_IMG_DECLARE(wifi_107x85);
 static lv_obj_t *main_menu_image;
 static const void *image_list[MAIN_MENU_SIZE] = {
     &wifi_107x85};
+
+static const char *main_menu_texts[MAIN_MENU_SIZE] = {
+    "WIFI"};
 
 static void main_menu_input_handler(user_actions_t user_action)
 {
@@ -39,6 +41,7 @@ static void main_menu_input_handler(user_actions_t user_action)
             current_item = 0;
         }
         lvgl_port_lock(0);
+        lv_label_set_text(current_item_label, main_menu_texts[current_item]);
         lv_image_set_src(main_menu_image, image_list[current_item]);
         lvgl_port_unlock();
         break;
@@ -76,10 +79,10 @@ static void main_menu_view_draw(view_handler_t *_calling_view)
     lv_image_set_src(main_menu_image, image_list[current_item]);
     lv_obj_align(main_menu_image, LV_ALIGN_CENTER, 0, -15);
 
-    wifi_label = lv_label_create(main_menu_view);
-    lv_label_set_text(wifi_label, "WiFi");
-    lv_obj_align(wifi_label, LV_ALIGN_CENTER, 0, 50);
-    lv_obj_add_style(wifi_label, get_bigfont_style(), LV_PART_MAIN);
+    current_item_label = lv_label_create(main_menu_view);
+    lv_label_set_text(current_item_label,main_menu_texts[current_item]);
+    lv_obj_align(current_item_label, LV_ALIGN_CENTER, 0, 50);
+    lv_obj_add_style(current_item_label, get_bigfont_style(), LV_PART_MAIN);
 
     lvgl_port_unlock();
 }

@@ -11,6 +11,7 @@ static const char *TAG = "WiFi";
 
 static int s_retry_num = 0;
 static bool is_connected = false;
+static bool scanning = false;
 
 static EventGroupHandle_t s_wifi_event_group;
 static esp_netif_t *netif;
@@ -21,6 +22,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
         esp_wifi_connect();
+    }
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_SCAN_DONE)
+    {
+        scanning = false;
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
@@ -50,7 +55,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 int wifi_get_rssi(void)
 {
     int rssi = -100;
-    if (wifi_get_state())
+    if (wifi_get_state() && !scanning)
     {
         esp_wifi_sta_get_rssi(&rssi);
     }
@@ -95,6 +100,128 @@ bool wifi_get_state(void)
     return is_connected;
 }
 
+const char* wifi_get_cipher_string(wifi_cipher_type_t cipher_type){
+    switch (cipher_type)
+    {
+    case WIFI_CIPHER_TYPE_NONE:
+        return "NONE";
+        break;
+
+    case WIFI_CIPHER_TYPE_WEP40:
+        return "WEP 40";
+        break;
+
+    case WIFI_CIPHER_TYPE_WEP104:
+        return "WEP 104";
+        break;
+
+    case WIFI_CIPHER_TYPE_TKIP:
+        return "TKIP";
+        break;
+
+    case WIFI_CIPHER_TYPE_CCMP:
+        return "CCMP";
+        break;
+
+    case WIFI_CIPHER_TYPE_TKIP_CCMP:
+        return "TKIP CCMP";
+        break;
+
+    case WIFI_CIPHER_TYPE_AES_CMAC128:
+        return "AES-CMAC-128";
+        break;
+
+    case WIFI_CIPHER_TYPE_SMS4:
+        return "SMS4";
+        break;
+
+    case WIFI_CIPHER_TYPE_GCMP:
+        return "GCMP";
+        break;
+
+    case WIFI_CIPHER_TYPE_GCMP256:
+        return "GCMP-256";
+        break;
+
+    case WIFI_CIPHER_TYPE_AES_GMAC128:
+        return "AES-GMAC-128";
+        break;
+
+    case WIFI_CIPHER_TYPE_AES_GMAC256:
+        return "AES-GMAC-256";
+        break;
+    
+    default:
+        return "UNKNOW";
+        break;
+    }
+}
+
+const char *wifi_get_auth_string(wifi_auth_mode_t authmode)
+{
+    switch (authmode)
+    {
+    case WIFI_AUTH_OPEN:
+        return "OPEN";
+        break;
+
+    case WIFI_AUTH_WEP:
+        return "WEP";
+        break;
+
+    case WIFI_AUTH_WPA_PSK:
+        return "WPA PSK";
+        break;
+
+    case WIFI_AUTH_WPA2_PSK:
+        return "WPA2 PSK";
+        break;
+
+    case WIFI_AUTH_WPA_WPA2_PSK:
+        return "WPA WPA2 PSK";
+        break;
+    case WIFI_AUTH_ENTERPRISE:
+        return "EAP";
+        break;
+
+    case WIFI_AUTH_WPA3_PSK:
+        return "WPA3 PSK";
+        break;
+
+    case WIFI_AUTH_WPA2_WPA3_PSK:
+        return "WPA2 WPA3 PSK";
+        break;
+
+    case WIFI_AUTH_WAPI_PSK:
+        return "WAPI PSK";
+        break;
+
+    case WIFI_AUTH_OWE:
+        return "OWE";
+        break;
+
+    case WIFI_AUTH_WPA3_ENT_192:
+        return "WPA3 ENT 192";
+        break;
+
+     case WIFI_AUTH_WPA3_EXT_PSK:
+        return "WPA3 EXT PSK";
+        break;   
+
+    case WIFI_AUTH_WPA3_EXT_PSK_MIXED_MODE:
+        return "WPA3 EXT PSK MIXED MODE";
+        break;
+
+    case WIFI_AUTH_DPP:
+        return "DPP";
+        break;
+
+    default:
+        return "UNKNOW";
+        break;
+    }
+}
+
 esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostname)
 {
     esp_netif_set_hostname(netif, hostname);
@@ -134,10 +261,12 @@ esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostnam
     return ESP_OK;
 }
 
-void wifi_launch_scan(void){
+void wifi_launch_scan(void)
+{
     wifi_scan_config_t scan_config;
     memset(&scan_config, 0, sizeof(wifi_scan_config_t));
     scan_config.show_hidden = true;
     scan_config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
     esp_wifi_scan_start(&scan_config, false);
+    scanning = true;
 }

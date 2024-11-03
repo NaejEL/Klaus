@@ -3,7 +3,6 @@
 #include "esp_lvgl_port.h"
 #include "style.h"
 #include "view_commons.h"
-#include "esp_wifi_types.h"
 
 void deauth_view_init(void);
 

@@ -1,6 +1,7 @@
 #include "scan_view.h"
 #include "wifi.h"
 #include <string.h>
+#include "wifi_attacks.h"
 
 static view_handler_t *calling_view;
 
@@ -9,6 +10,7 @@ static view_handler_t scan_view_handler;
 static uint8_t current_highlight_item = 0;
 static bool view_active = false;
 static bool info_print = false;
+static bool dos_attack_running = false;
 lv_obj_t *spinner = NULL;
 
 static EventGroupHandle_t s_wifi_event_group;
@@ -38,6 +40,12 @@ static void scan_input_handler(user_actions_t user_action)
         {
             scan_view_draw_ap_list();
         }
+        else if (dos_attack_running)
+        {
+            printf("Stope attacks\n");
+            wifi_attack_dos_stop();
+            dos_attack_running = false;
+        }
         else
         {
             calling_view->draw_view(scan_view_get_handler());
@@ -66,7 +74,16 @@ static void scan_input_handler(user_actions_t user_action)
     }
     else if (user_action == WHEEL_CLICK_SHORT)
     {
-        scan_draw_ap_infos(current_highlight_item);
+        if (!info_print)
+        {
+            scan_draw_ap_infos(current_highlight_item);
+        }
+        else
+        {
+            printf("Start attacks\n");
+            dos_attack_running = true;
+            wifi_attack_dos_start(wifi_get_one_ap_record(current_highlight_item));
+        }
     }
 }
 

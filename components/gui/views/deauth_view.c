@@ -2,7 +2,6 @@
 #include "wifi.h"
 #include <string.h>
 #include "esp_timer.h"
-#include "wsl_bypasser.h"
 
 static view_handler_t *calling_view;
 

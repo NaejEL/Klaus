@@ -6,5 +6,5 @@ idf_component_register(
          "scan_view.c"
          "deauth_view.c"
     INCLUDE_DIRS .
-    PRIV_REQUIRES display userinputs wifi wsl_bypasser
+    PRIV_REQUIRES display userinputs wifi
     )

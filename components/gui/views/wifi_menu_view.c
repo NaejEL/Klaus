@@ -1,5 +1,6 @@
 #include "wifi_menu_view.h"
 #include "scan_view.h"
+#include "deauth_view.h"
 static view_handler_t *calling_view;
 
 static lv_obj_t *wifi_menu_view;

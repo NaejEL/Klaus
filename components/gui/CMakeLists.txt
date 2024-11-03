@@ -6,8 +6,9 @@ idf_component_register(
          views/main_menu_view.c 
          views/wifi_menu_view.c
          views/scan_view.c
+         views/deauth_view.c
     INCLUDE_DIRS . views
-    PRIV_REQUIRES display userinputs sd wifi clock battery
+    PRIV_REQUIRES display userinputs sd wifi clock battery wsl_bypasser
     )
 
 # Convert image to C Array usibng LVGL tools

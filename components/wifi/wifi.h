@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+ Largely inspired by https://github.com/risinek/esp32-wifi-penetration-tool
+*/
+
 #include <stdbool.h>
 #include "esp_err.h"
 #include "esp_log.h"
@@ -11,11 +15,31 @@
 
 #define MAX_SCAN_SIZE 10
 
-esp_err_t wifi_init(void);
-esp_err_t wifi_connect(const char *ssid, const char *pass, const char *hostname);
+typedef struct {
+    uint16_t count;
+    wifi_ap_record_t records[MAX_SCAN_SIZE];
+} wifi_ap_records_t;
 
-bool wifi_get_state(void);
-int wifi_get_rssi(void);
+void wifi_init_apsta(void);
+
+void wifi_ap_start(wifi_config_t *wifi_config);
+void wifi_ap_stop(void);
+void wifi_sta_disconnect(void);
+void wifi_set_ap_mac(uint8_t *mac_ap);
+void wifi_get_ap_mac(uint8_t *mac_ap);
+void wifi_restore_ap_mac(void);
+void wifi_get_sta_mac(uint8_t *mac_sta);
+void wifi_set_channel(uint8_t channel);
+
 void wifi_launch_scan(void);
-const char* wifi_get_auth_string(wifi_auth_mode_t authmode);
-const char* wifi_get_cipher_string(wifi_cipher_type_t cipher_type);
+const wifi_ap_records_t *wifi_get_all_ap_records(void);
+const wifi_ap_record_t *wifi_get_one_ap_record(uint8_t index);
+const char *wifi_get_auth_string(wifi_auth_mode_t authmode);
+const char *wifi_get_cipher_string(wifi_cipher_type_t cipher_type);
+
+esp_err_t wifi_connect(const char *ssid, const char *pass, const char *hostname);
+bool wifi_is_connected(void);
+bool wifi_is_connecting(void);
+int wifi_get_rssi(void);
+
+

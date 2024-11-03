@@ -18,7 +18,7 @@ esp_err_t clock_set(const char *timezone)
     tzset();
     localtime_r(&now, &timeinfo);
 
-    if (!wifi_get_state())
+    if (!wifi_is_connected())
     {
         return ESP_FAIL;
     }

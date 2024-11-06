@@ -1,6 +1,5 @@
 #include "wifi_menu_view.h"
 #include "scan_view.h"
-#include "deauth_view.h"
 static view_handler_t *calling_view;
 
 static lv_obj_t *wifi_menu_view;
@@ -9,7 +8,6 @@ static view_handler_t wifi_menu_view_handler;
 typedef enum
 {
     WIFI_MENU_SCAN,
-    WIFI_MENU_DEAUTH,
 
     WIFI_MENU_SIZE
 } wifi_menu_items_t;
@@ -17,16 +15,13 @@ typedef enum
 static wifi_menu_items_t current_item;
 static lv_obj_t *current_item_label;
 LV_IMG_DECLARE(scan_85);
-LV_IMG_DECLARE(nowifi_85);
 
 static lv_obj_t *wifi_menu_image;
 static const void *image_list[WIFI_MENU_SIZE] = {
-    &scan_85,
-    &nowifi_85};
+    &scan_85};
 
 static const char *wifi_menu_texts[WIFI_MENU_SIZE] = {
-    "SCAN",
-    "DEAUTH"};
+    "SCAN"};
 
 static void wifi_menu_input_handler(user_actions_t user_action)
 {

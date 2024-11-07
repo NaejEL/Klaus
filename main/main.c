@@ -57,6 +57,7 @@ static esp_err_t spi_init(void)
 
 void app_main(void)
 {
+    //wifi_init_apsta();
     // Power LEDs and CC1101
     gpio_set_direction(GPIO_NUM_15, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_NUM_15, 1);
@@ -74,7 +75,6 @@ void app_main(void)
     display_backlight_on();
     gui_init();
 
-    wifi_init();
     wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);
     clock_set(klaus_config.timezone);
 }

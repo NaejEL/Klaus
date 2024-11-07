@@ -90,7 +90,7 @@ static void wifiTask(void *pvParam)
         lvgl_port_lock(0);
         int rssi = wifi_get_rssi();
         uint8_t quality = 2 * (rssi + 100);
-        if (wifi_get_state() && quality != 0)
+        if (wifi_is_connected() && quality != 0)
         {
             lv_obj_remove_flag(wifi_bar, LV_OBJ_FLAG_HIDDEN);
             lv_image_set_src(wifi_logo, &wifi_ok_15);

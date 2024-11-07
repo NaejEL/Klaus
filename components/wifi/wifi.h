@@ -15,6 +15,7 @@
 #define WIFI_FAIL_BIT BIT1
 
 #define MAX_SCAN_SIZE 10
+#define MAX_PHY_SIZE 15
 
 typedef struct {
     uint16_t count;
@@ -34,9 +35,10 @@ void wifi_set_channel(uint8_t channel);
 
 void wifi_launch_scan(void);
 const wifi_ap_records_t *wifi_get_all_ap_records(void);
-const wifi_ap_record_t *wifi_get_one_ap_record(uint8_t index);
+const wifi_ap_record_t *wifi_get_one_ap_record(uint8_t record_index);
 const char *wifi_get_auth_string(wifi_auth_mode_t authmode);
 const char *wifi_get_cipher_string(wifi_cipher_type_t cipher_type);
+void wifi_get_phy_from_record(uint8_t record_index, char* buffer);
 
 esp_err_t wifi_connect(const char *ssid, const char *pass, const char *hostname);
 bool wifi_is_connected(void);

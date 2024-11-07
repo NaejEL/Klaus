@@ -23,6 +23,7 @@ lv_style_t *get_background_style(void);
 
 lv_style_t *get_bigfont_style(void);
 lv_style_t *get_highlight_style(void);
+lv_style_t *get_danger_style(void);
 
 lv_style_t *get_bar_style_indic(void);
 lv_style_t *get_bar_style_background(void);

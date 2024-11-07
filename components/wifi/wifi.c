@@ -66,9 +66,9 @@ void wifi_init_apsta()
     }
 
     ESP_ERROR_CHECK(esp_netif_init());
-    
+
     wifi_event_group = xEventGroupCreate();
-	esp_event_loop_create_default();
+    esp_event_loop_create_default();
 
     netif_ap = esp_netif_create_default_wifi_ap();
     netif_sta = esp_netif_create_default_wifi_sta();
@@ -263,7 +263,7 @@ esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostnam
     }
     esp_netif_set_hostname(netif_sta, hostname);
     wifi_config_t wifi_config;
-    memset(&wifi_config,0,sizeof(wifi_config_t));
+    memset(&wifi_config, 0, sizeof(wifi_config_t));
     strcpy((char *)wifi_config.sta.ssid, (char *)_ssid);
     strcpy((char *)wifi_config.sta.password, (char *)_pass);
 
@@ -271,14 +271,17 @@ esp_err_t wifi_connect(const char *_ssid, const char *_pass, const char *hostnam
     ESP_ERROR_CHECK(esp_wifi_connect());
     is_connecting = true;
     int bits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
-								   pdFALSE, pdTRUE, 100000 / portTICK_PERIOD_MS);
-	ESP_LOGI(TAG, "bits=%x", bits);
-	if (bits) {
-		ESP_LOGI(TAG, "WIFI_MODE_STA connected.");
-	} else {
-		ESP_LOGI(TAG, "WIFI_MODE_STA can't connected.");
-	}
-	return (bits & CONNECTED_BIT) != 0;
+                                   pdFALSE, pdTRUE, 100000 / portTICK_PERIOD_MS);
+    ESP_LOGI(TAG, "bits=%x", bits);
+    if (bits)
+    {
+        ESP_LOGI(TAG, "WIFI_MODE_STA connected.");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "WIFI_MODE_STA can't connected.");
+    }
+    return (bits & CONNECTED_BIT) != 0;
 }
 
 void wifi_launch_scan(void)
@@ -306,14 +309,63 @@ const wifi_ap_records_t *wifi_get_all_ap_records(void)
     return &ap_records;
 }
 
-const wifi_ap_record_t *wifi_get_one_ap_record(uint8_t index)
+const wifi_ap_record_t *wifi_get_one_ap_record(uint8_t record_index)
 {
-    if (index > ap_records.count)
+    if (record_index > ap_records.count)
     {
-        ESP_LOGE(TAG, "Index out of bounds! %u records available, but %u requested", ap_records.count, index);
+        ESP_LOGE(TAG, "Index out of bounds! %u records available, but %u requested", ap_records.count, record_index);
         return NULL;
     }
-    return &ap_records.records[index];
+    return &ap_records.records[record_index];
+}
+
+void wifi_get_phy_from_record(uint8_t record_index, char *buffer)
+{
+    size_t nb_char = 0;
+    const wifi_ap_record_t *ap_record = wifi_get_one_ap_record(record_index);
+    if (ap_record->phy_11b)
+    {
+        buffer[nb_char] = 'b';
+        nb_char++;
+    }
+    if (ap_record->phy_11g)
+    {
+        buffer[nb_char] = 'g';
+        nb_char++;
+    }
+    if (ap_record->phy_11n)
+    {
+        buffer[nb_char] = 'n';
+        nb_char++;
+    }
+    if (ap_record->phy_lr)
+    {
+        buffer[nb_char] = 'l';
+        nb_char++;
+        buffer[nb_char] = 'r';
+        nb_char++;
+    }
+    if (ap_record->phy_11a)
+    {
+        buffer[nb_char] = 'a';
+        nb_char++;
+    }
+    if (ap_record->phy_11ac)
+    {
+        buffer[nb_char] = 'a';
+        nb_char++;
+        buffer[nb_char] = 'c';
+        nb_char++;
+    }
+    if (ap_record->phy_11ax)
+    {
+        buffer[nb_char] = 'a';
+        nb_char++;
+        buffer[nb_char] = 'x';
+        nb_char++;
+    }
+    buffer[nb_char] = '\0';
+    return;
 }
 
 void wifi_sta_disconnect(void)

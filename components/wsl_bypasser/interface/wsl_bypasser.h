@@ -13,8 +13,6 @@
 
 #include "esp_wifi_types.h"
 
-int ieee80211_raw_frame_sanity_check(int32_t arg, int32_t arg2, int32_t arg3);
-
 /**
  * @brief Sends frame in frame_buffer using esp_wifi_80211_tx but bypasses blocking mechanism
  * 

@@ -3,6 +3,7 @@
 static lv_style_t background_style;
 static lv_style_t bigfont;
 static lv_style_t highlight;
+static lv_style_t danger;
 static lv_style_t bar_style_indic;
 static lv_style_t bar_style_bg;
 static lv_style_t bar_style_knob;
@@ -35,6 +36,9 @@ void style_init(void)
 
     // Highlight
     lv_style_set_text_color(&highlight,lv_color_hex(HIGHLIGHT_COLOR));
+
+    // Danger color
+    lv_style_set_text_color(&danger,lv_color_hex(DANGER_COLOR));
 
     // Bar indic
     lv_style_init(&bar_style_indic);
@@ -78,6 +82,10 @@ lv_style_t *get_bigfont_style(void)
 
 lv_style_t *get_highlight_style(void){
     return &highlight;
+}
+
+lv_style_t *get_danger_style(void){
+    return &danger;
 }
 
 lv_style_t *get_bar_style_indic(void)

@@ -75,6 +75,6 @@ void app_main(void)
     display_backlight_on();
     gui_init();
 
- //  wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);
- //  clock_set(klaus_config.timezone);
+    wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);
+    clock_set(klaus_config.timezone);
 }

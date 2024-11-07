@@ -43,11 +43,6 @@ void wifi_attack_dos_start(const wifi_ap_record_t *ap_record) {
   wifi_attack_method_broadcast(ap_record, 1);
 }
 void wifi_attack_dos_stop() {
-  if (ieee80211_raw_frame_sanity_check(31337, 0, 0) == 1) {
-    printf("Wsl bypasser enable\n");
-  } else {
-    printf("Wsl bypasser enable\n");
-  }
   wifi_attack_method_broadcast_stop();
   wifi_restore_ap_mac();
   wifi_ap_stop();

@@ -23,6 +23,7 @@ lvgl_port_create_c_image("images_png/wifi_ok_15.png" "images_c/" "RGB565A8" "NON
 lvgl_port_create_c_image("images_png/wifi_nok_15.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/wifi_107x85.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/scan_85.png" "images_c/" "RGB565A8" "NONE")
+lvgl_port_create_c_image("images_png/rfid_85.png" "images_c/" "RGB565A8" "NONE")
 # lvgl_port_create_c_image("images_png/nowifi_85.png" "images_c/" "RGB565A8" "NONE")
 
 # Add generated images to build

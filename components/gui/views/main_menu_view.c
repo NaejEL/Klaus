@@ -10,6 +10,7 @@ static view_handler_t main_menu_view_handler;
 typedef enum
 {
     MAIN_MENU_WIFI,
+    MAIN_MENU_RFID,
 
     MAIN_MENU_SIZE
 } main_menu_items_t;
@@ -20,12 +21,13 @@ static lv_obj_t *current_item_label;
 
 // Menu images
 LV_IMG_DECLARE(wifi_107x85);
+LV_IMG_DECLARE(rfid_85);
 static lv_obj_t *main_menu_image;
 static const void *image_list[MAIN_MENU_SIZE] = {
-    &wifi_107x85};
+    &wifi_107x85, &rfid_85};
 
 static const char *main_menu_texts[MAIN_MENU_SIZE] = {
-    "WIFI"};
+    "WIFI", "RFID"};
 
 static void main_menu_input_handler(user_actions_t user_action)
 {
@@ -46,7 +48,8 @@ static void main_menu_input_handler(user_actions_t user_action)
         lvgl_port_unlock();
         break;
     case WHEEL_CLICK_SHORT:
-        if(current_item==MAIN_MENU_WIFI){
+        if (current_item == MAIN_MENU_WIFI)
+        {
             wifi_menu_view_get_handler()->draw_view(get_current_view_handler());
         }
     default:
@@ -80,7 +83,7 @@ static void main_menu_view_draw(view_handler_t *_calling_view)
     lv_obj_align(main_menu_image, LV_ALIGN_CENTER, 0, -15);
 
     current_item_label = lv_label_create(main_menu_view);
-    lv_label_set_text(current_item_label,main_menu_texts[current_item]);
+    lv_label_set_text(current_item_label, main_menu_texts[current_item]);
     lv_obj_align(current_item_label, LV_ALIGN_CENTER, 0, 50);
     lv_obj_add_style(current_item_label, get_bigfont_style(), LV_PART_MAIN);
 

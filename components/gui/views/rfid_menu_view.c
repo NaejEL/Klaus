@@ -33,7 +33,7 @@ lv_obj_t *spinner;
 
 static void rfid_menu_draw_read_view(void);
 static void rfid_menu_draw_main_view(void);
-static void rfid_menu_draw_tag_view(pn532_record_t *record);
+static void rfid_menu_draw_tag_view(const pn532_record_t *record);
 
 static void rfid_menu_input_handler(user_actions_t user_action)
 {
@@ -47,7 +47,7 @@ static void rfid_menu_input_handler(user_actions_t user_action)
     }
 }
 
-static void rfid_menu_draw_tag_view(pn532_record_t *record)
+static void rfid_menu_draw_tag_view(const pn532_record_t *record)
 {
     current_view = RFID_VIEW_TAG;
     lvgl_port_lock(0);

@@ -36,7 +36,7 @@ typedef struct
     uint8_t uid[PN532_UID_MAX_SIZE];
 } pn532_record_t;
 
-typedef void (*pn532_callback)(pn532_record_t* record);
+typedef void (*pn532_callback)(const pn532_record_t* record);
 
 void pn532_i2c_init(i2c_port_t _i2c_port, gpio_port_t irq, gpio_port_t reset, SemaphoreHandle_t i2c_lock);
 esp_err_t pn532_SAMConfig(void);

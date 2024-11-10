@@ -17,15 +17,27 @@ static uint8_t pn532ack[] = {0x00, 0x00, 0xFF,
                              0x00, 0xFF, 0x00}; ///< ACK message from PN532
 static uint8_t pn532_packetbuffer[PN532_PACKBUFFSIZ];
 
-pn532_record_t pn532_last_record;
+static pn532_record_t pn532_last_record;
+
+static uint8_t cardbaudrate;
+static uint16_t timeout;
+static pn532_callback callback;
 
 static esp_err_t pn532_write_command(uint8_t *cmd, size_t cmd_length);
 static void pn532_hardware_reset(void);
 static esp_err_t pn532_read_data(uint8_t *buffer, size_t buffer_size);
 
+static void pn532_launch_read_task(void *pvParams);
+
 static bool pn532_is_ready(void);
 static bool pn532_wait_ready(uint16_t timeout);
 static bool pn532_read_ack(void);
+
+static void pn532_launch_read_task(void *pvParams)
+{
+    callback(pn532_read_passive_targetID(cardbaudrate, timeout));
+    vTaskDelete(NULL);
+}
 
 static esp_err_t pn532_read_data(uint8_t *buff, size_t buffer_size)
 {
@@ -66,7 +78,7 @@ static esp_err_t pn532_read_data(uint8_t *buff, size_t buffer_size)
     memcpy(buff, buffer + 1, buffer_size);
 
     // Start read (n+1 to take into account leading 0x01 with I2C)
-    //esp_log_buffer_hex("PN532 read", buffer, buffer_size + 3);
+    // esp_log_buffer_hex("PN532 read", buffer, buffer_size + 3);
     free(buffer);
     return ESP_OK;
 }
@@ -122,7 +134,7 @@ static esp_err_t pn532_write_command(uint8_t *cmd, size_t cmd_length)
         i2c_master_write_byte(i2ccmd, command[i], true);
 
     i2c_master_stop(i2ccmd);
-    //esp_log_buffer_hex("PN532 write", command, cmd_length + 9);
+    // esp_log_buffer_hex("PN532 write", command, cmd_length + 9);
 
     esp_err_t result = ESP_OK;
     result = i2c_master_cmd_begin(i2c_port, i2ccmd, I2C_WRITE_TIMEOUT / portTICK_PERIOD_MS);
@@ -161,12 +173,12 @@ esp_err_t pn532_send_command_check_ack(uint8_t *cmd, size_t cmd_lenght, uint16_t
     pn532_write_command(cmd, cmd_lenght);
     if (!pn532_wait_ready(timeout))
     {
-        ESP_LOGD(TAG,"Not ready in time");
+        ESP_LOGD(TAG, "Not ready in time");
         return ESP_FAIL;
     }
     if (!pn532_read_ack())
     {
-        ESP_LOGD(TAG,"No ACK Frame received");
+        ESP_LOGD(TAG, "No ACK Frame received");
         return ESP_FAIL;
     }
     return ESP_OK;
@@ -187,7 +199,7 @@ static bool pn532_wait_ready(uint16_t timeout)
             timer += 10;
             if (timer > timeout)
             {
-                ESP_LOGI(TAG,"Wait ready timeout");
+                ESP_LOGI(TAG, "Wait ready timeout");
                 return false;
             }
         }
@@ -231,7 +243,7 @@ uint32_t pn532_get_firmware_version()
 
     if (pn532_send_command_check_ack(pn532_packetbuffer, 1, I2C_WRITE_TIMEOUT) != ESP_OK)
     {
-        ESP_LOGI(TAG,"get firmware version send command check ack failed");
+        ESP_LOGI(TAG, "get firmware version send command check ack failed");
         return 0;
     }
 
@@ -240,7 +252,7 @@ uint32_t pn532_get_firmware_version()
     // check some basic stuff
     if (0 != strncmp((char *)pn532_packetbuffer, (char *)pn532response_firmwarevers, 6))
     {
-       ESP_LOGD(TAG, "Basic stuff failed");
+        ESP_LOGD(TAG, "Basic stuff failed");
         return 0;
     }
 
@@ -295,7 +307,7 @@ const pn532_record_t *pn532_read_passive_targetID(uint8_t cardbaudrate, uint16_t
 
     if (pn532_send_command_check_ack(pn532_packetbuffer, 3, timeout) != ESP_OK)
     {
-        ESP_LOGI(TAG,"No card(s) read");
+        ESP_LOGI(TAG, "No card(s) read");
         return NULL;
     }
 
@@ -323,11 +335,11 @@ const pn532_record_t *pn532_read_passive_targetID(uint8_t cardbaudrate, uint16_t
     b12             NFCID Length
     b13..NFCIDLen   NFCID                                      */
 
-    ESP_LOGD(TAG,"Found %d tags", pn532_packetbuffer[7]);
+    ESP_LOGD(TAG, "Found %d tags", pn532_packetbuffer[7]);
 
     if (pn532_packetbuffer[7] != 1)
     {
-        ESP_LOGI(TAG,"Eighth packetbuffer not ok:0x%02x\n", pn532_packetbuffer[7]);
+        ESP_LOGI(TAG, "Eighth packetbuffer not ok:0x%02x\n", pn532_packetbuffer[7]);
         return NULL;
     }
 
@@ -348,10 +360,15 @@ const pn532_record_t *pn532_read_passive_targetID(uint8_t cardbaudrate, uint16_t
     return &pn532_last_record;
 }
 
-const pn532_record_t *pn532_get_last_record(){
+const pn532_record_t *pn532_get_last_record()
+{
     return &pn532_last_record;
 }
 
-void pn532_background_read_passive_targetID(uint8_t cardbaudrate, uint16_t timeout, pn532_callback callback){
-    callback(pn532_read_passive_targetID(cardbaudrate,timeout));
+void pn532_background_read_passive_targetID(uint8_t _cardbaudrate, uint16_t _timeout, pn532_callback _callback)
+{
+    cardbaudrate = _cardbaudrate;
+    timeout = _timeout;
+    callback = _callback;
+    xTaskCreate(pn532_launch_read_task, "PN532ReadTask", 4096, NULL, 4, NULL);
 }

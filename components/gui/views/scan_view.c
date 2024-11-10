@@ -175,7 +175,7 @@ static void scan_view_clear()
 
 static void scan_draw_deauth(uint8_t ap_index)
 {
-        current_view = DEAUTH_VIEW;
+    current_view = DEAUTH_VIEW;
     lvgl_port_lock(0);
     lv_obj_clean(scan_view);
     scan_view = lv_obj_create(lv_screen_active());

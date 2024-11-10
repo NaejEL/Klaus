@@ -19,8 +19,8 @@ void style_init(void)
     lv_style_set_border_width(&background_style, 0);
     lv_style_set_pad_all(&background_style, 0);
     // Add a gradient to background
-    lv_color_t back_color = lv_color_hex(BACKGROUND_COLOR);
-    lv_color_t back_grad_color = lv_color_hex(BACKGROUND_GRAD_COLOR);
+    lv_color_t back_color = lv_color_hex(BACKGROUND_GRAD_COLOR);
+    lv_color_t back_grad_color = lv_color_hex(BACKGROUND_COLOR);
 
     lv_color_t grad_colors[2] = {
         back_grad_color,

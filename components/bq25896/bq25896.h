@@ -17,20 +17,20 @@ Based on: https://github.com/lewisxhe/XPowersLib
 #define BQ25896_CURR_MAX (3250) // Input current limit Max 3.25A
 #define BQ25896_CURR_MIN (100)  // Input current limit Min 100mA
 
-#define BQ25896_CHARGE_VOLT_STEP (16) // Charge target voltage 16mV steps
+#define BQ25896_CHARGE_VOLT_STEP (16)  // Charge target voltage 16mV steps
 #define BQ25896_CHARGE_VOLT_MAX (4608) // Charge target voltage max 4.608V
 #define BQ25896_CHARGE_VOLT_MIN (3840) // Charge target voltage min 3.84V
 
-#define BQ25896_PRECHARGE_CURR_STEP (64) // Precharge current 64mA steps
+#define BQ25896_PRECHARGE_CURR_STEP (64)  // Precharge current 64mA steps
 #define BQ25896_PRECHARGE_CURR_MAX (1024) // Precharge current max 1024mA
-#define BQ25896_PRECHARGE_CURR_MIN (64) // Precharge current min 128mA
+#define BQ25896_PRECHARGE_CURR_MIN (64)   // Precharge current min 128mA
 
 #define BQ25896_CHARGE_CONST_CURR_STEP (64)  // Charge constant current step 64mA
-#define BQ25896_CHARGE_CONST_CURR_MAX (3008)  // Charge constant current max 3008mA, min 0mA
+#define BQ25896_CHARGE_CONST_CURR_MAX (3008) // Charge constant current max 3008mA, min 0mA
 
-#define BQ25896_PWOFF_TRESHOLD (3300) // We want to power off under 3.3V
-#define BQ25896_CHARGE_VOLT_DEFAULT (4208)// We want to charge at 4.208V
-#define BQ25896_CHARGE_CONST_CURR_DEFAULT (832)// We want fast charge at 832mA
+#define BQ25896_PWOFF_TRESHOLD (3300)           // We want to power off under 3.3V
+#define BQ25896_CHARGE_VOLT_DEFAULT (4208)      // We want to charge at 4.208V
+#define BQ25896_CHARGE_CONST_CURR_DEFAULT (832) // We want fast charge at 832mA
 
 typedef enum
 {
@@ -43,12 +43,12 @@ typedef enum
 
 typedef enum
 {
-   TIMEOUT_40SEC,
-   TIMEOUT_80SEC,
-   TIMEOUT_160SEC,
+    TIMEOUT_40SEC,
+    TIMEOUT_80SEC,
+    TIMEOUT_160SEC,
 } bq25896_watchdog_timeout_t;
 
-void bq25896_init(i2c_port_t _i2c_port);
+void bq25896_init(i2c_port_t _i2c_port, SemaphoreHandle_t i2c_lock);
 
 void bq25896_set_input_current_limit(uint16_t milliamps);
 uint16_t bq25896_get_input_current_limit(void);

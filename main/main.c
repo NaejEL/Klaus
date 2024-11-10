@@ -2,6 +2,8 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 static const char *TAG = "KlausFirmware";
 
@@ -10,7 +12,8 @@ static const char *TAG = "KlausFirmware";
 #define SDA_PIN (GPIO_NUM_8)
 #define SCL_PIN (GPIO_NUM_18)
 #define I2C_PORT_NUM I2C_NUM_0
-#define I2C_FREQ 400000
+#define I2C_FREQ 100000
+SemaphoreHandle_t i2c_lock = NULL;
 
 // SPI
 #define SPI_MIS0 (GPIO_NUM_10)
@@ -28,6 +31,8 @@ static const char *TAG = "KlausFirmware";
 #include "config.h"
 klaus_config_t klaus_config;
 
+#include "pn532.h"
+
 static void i2c_init(void)
 {
     i2c_config_t conf = {};
@@ -39,6 +44,8 @@ static void i2c_init(void)
     conf.master.clk_speed = I2C_FREQ;
     i2c_param_config(I2C_PORT_NUM, &conf);
     i2c_driver_install(I2C_PORT_NUM, conf.mode, 0, 0, 0);
+    i2c_lock = xSemaphoreCreateBinary();
+    xSemaphoreGive(i2c_lock);
 }
 
 static esp_err_t spi_init(void)
@@ -57,8 +64,7 @@ static esp_err_t spi_init(void)
 
 void app_main(void)
 {
-    //wifi_init_apsta();
-    // Power LEDs and CC1101
+    //  Power LEDs and CC1101
     gpio_set_direction(GPIO_NUM_15, GPIO_MODE_OUTPUT);
     gpio_set_level(GPIO_NUM_15, 1);
 
@@ -69,7 +75,8 @@ void app_main(void)
     config_parse_config(&klaus_config);
 
     i2c_init();
-    battery_init(I2C_PORT_NUM);
+    pn532_i2c_init(I2C_PORT_NUM, PN532_IRQ, PN532_RESET, i2c_lock);
+    battery_init(I2C_PORT_NUM, i2c_lock);
 
     display_init(SPI_NUM);
     display_backlight_on();

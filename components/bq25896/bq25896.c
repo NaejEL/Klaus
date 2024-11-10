@@ -1,12 +1,25 @@
 #include "bq25896.h"
 
+// Common ESP-IDF Helpers
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
+
 static const char *TAG = "bq25896";
 
 static i2c_port_t i2c_port;
+static SemaphoreHandle_t i2c_lock = NULL;
 
 static esp_err_t bq25896_read_register(uint8_t reg, uint8_t *buffer, uint8_t buffer_size)
 {
-    return i2c_master_write_read_device(i2c_port, BQ25896_ADDR, (uint8_t *)&reg, 1, buffer, buffer_size, 200 / portTICK_PERIOD_MS);
+    while (xSemaphoreTake(i2c_lock, portMAX_DELAY) != pdPASS)
+    {
+        ESP_LOGI(TAG, "Read cannot take the lock");
+        return ESP_FAIL;
+    }
+    esp_err_t result = i2c_master_write_read_device(i2c_port, BQ25896_ADDR, (uint8_t *)&reg, 1, buffer, buffer_size, 200 / portTICK_PERIOD_MS);
+    xSemaphoreGive(i2c_lock);
+    return result;
 }
 
 static esp_err_t bq25896_write_register(uint8_t reg, uint8_t *buffer, uint8_t buffer_size)
@@ -18,7 +31,13 @@ static esp_err_t bq25896_write_register(uint8_t reg, uint8_t *buffer, uint8_t bu
     }
     write_buffer[0] = reg;
     memcpy(write_buffer + 1, buffer, buffer_size);
+    while (xSemaphoreTake(i2c_lock, portMAX_DELAY) != pdPASS)
+    {
+        ESP_LOGI(TAG, "Write cannot take the lock");
+        return ESP_FAIL;
+    }
     esp_err_t ret = i2c_master_write_to_device(i2c_port, BQ25896_ADDR, write_buffer, buffer_size + 1, 200 / portTICK_PERIOD_MS);
+    xSemaphoreGive(i2c_lock);
     free(write_buffer);
     return ret;
 }
@@ -54,8 +73,9 @@ static esp_err_t bq25896_clear_register_bit(uint8_t reg, uint8_t bit)
     return bq25896_write_register(reg, &value, 1);
 }
 
-void bq25896_init(i2c_port_t _i2c_port)
+void bq25896_init(i2c_port_t _i2c_port, SemaphoreHandle_t _i2c_lock)
 {
+    i2c_lock = _i2c_lock;
     i2c_port = _i2c_port;
     bq25896_set_power_off_voltage(BQ25896_PWOFF_TRESHOLD);
     bq25896_set_input_current_limit(BQ25896_CURR_MAX);

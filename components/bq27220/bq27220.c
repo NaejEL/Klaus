@@ -4,6 +4,7 @@ static const char *TAG = "bq27220";
 
 static union battery_state bat_st;
 static i2c_port_t i2c_port = -1;
+static SemaphoreHandle_t i2c_lock = NULL;
 
 // Write a specified number of bytes over I2C to a given subAddress
 static esp_err_t bq27220_I2cWriteBytes(uint8_t subAddress, uint8_t *src, uint8_t count)
@@ -17,6 +18,13 @@ static esp_err_t bq27220_I2cWriteBytes(uint8_t subAddress, uint8_t *src, uint8_t
     {
         return ESP_FAIL;
     }
+
+    while (xSemaphoreTake(i2c_lock, portMAX_DELAY) != pdPASS)
+    {
+        ESP_LOGI(TAG, "Write cannot take the lock");
+        return ESP_FAIL;
+    }
+
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (bq27220_ADDR << 1) | I2C_MASTER_WRITE, 0x1);
@@ -28,6 +36,7 @@ static esp_err_t bq27220_I2cWriteBytes(uint8_t subAddress, uint8_t *src, uint8_t
     i2c_master_stop(cmd);
     esp_err_t ret = i2c_master_cmd_begin(i2c_port, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
+    xSemaphoreGive(i2c_lock);
     return ret;
 }
 
@@ -37,6 +46,13 @@ static esp_err_t bq27220_I2cReadBytes(uint8_t subAddress, uint8_t *dest, uint8_t
     {
         return ESP_FAIL;
     }
+
+    while (xSemaphoreTake(i2c_lock, portMAX_DELAY) != pdPASS)
+    {
+        ESP_LOGI(TAG, "Read cannot take the lock");
+        return ESP_FAIL;
+    }
+
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (bq27220_ADDR << 1) | I2C_MASTER_WRITE, 0x01);
@@ -52,7 +68,8 @@ static esp_err_t bq27220_I2cReadBytes(uint8_t subAddress, uint8_t *dest, uint8_t
 
     esp_err_t ret = i2c_master_cmd_begin(i2c_port, cmd, 200 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
-
+    xSemaphoreGive(i2c_lock);
+    
     return ret;
 }
 
@@ -81,8 +98,9 @@ static uint16_t bq27220_ReadControlWord(uint16_t function)
     return false;
 }
 
-esp_err_t bq27220_init(i2c_port_t _i2c_port)
+esp_err_t bq27220_init(i2c_port_t _i2c_port, SemaphoreHandle_t _i2c_lock)
 {
+    i2c_lock = _i2c_lock;
     i2c_port = _i2c_port;
     printf("%s:\n \
     Device ID:0x%02x\n \

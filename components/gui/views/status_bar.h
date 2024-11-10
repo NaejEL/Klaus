@@ -29,7 +29,7 @@ LV_IMG_DECLARE(wifi_ok_15);
 // Battery
 lv_obj_t *battery_logo = NULL;
 lv_obj_t *battery_bar = NULL;
-lv_obj_t *battery_label = NULL;
+//lv_obj_t *battery_label = NULL;
 
 // SD
 lv_obj_t *sd_logo = NULL;
@@ -51,7 +51,7 @@ static void batteryTask(void *pvParameters)
         uint16_t battery_value = battery_get_percent();
         lvgl_port_lock(0);
         lv_bar_set_value(battery_bar, battery_value, LV_ANIM_OFF);
-        lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
+        //lv_label_set_text_fmt(battery_label, "%d%%", battery_value);
         if (battery_get_charging_state())
         {
             lv_image_set_src(battery_logo, &charge_15);
@@ -159,12 +159,12 @@ static void status_bar_draw()
     // Wifi Logo
     wifi_logo = lv_image_create(status_bar);
     lv_image_set_src(wifi_logo, &wifi_nok_15);
-    lv_obj_align(wifi_logo, LV_ALIGN_TOP_LEFT, 90, 2);
+    lv_obj_align(wifi_logo, LV_ALIGN_TOP_LEFT, 55, 2);
 
     // Battery Label
-    battery_label = lv_label_create(status_bar);
-    lv_obj_align(battery_label, LV_ALIGN_TOP_LEFT, 54, 2);
-    lv_label_set_text_fmt(battery_label, "%d%%", 0);
+    //battery_label = lv_label_create(status_bar);
+    //lv_obj_align(battery_label, LV_ALIGN_TOP_LEFT, 54, 2);
+    //lv_label_set_text_fmt(battery_label, "%d%%", 0);
 
     // Time Label
     time_label = lv_label_create(status_bar);
@@ -185,7 +185,7 @@ static void status_bar_draw()
     lv_obj_add_style(wifi_bar, get_bar_style_background(), 0);
     lv_obj_add_style(wifi_bar, get_bar_style_indic(), LV_PART_INDICATOR);
     lv_obj_set_size(wifi_bar, 30, 10);
-    lv_obj_align(wifi_bar, LV_ALIGN_TOP_LEFT, 112, 5);
+    lv_obj_align(wifi_bar, LV_ALIGN_TOP_LEFT, 77, 5);
     lv_bar_set_value(wifi_bar, 0, LV_ANIM_OFF);
 
     lvgl_port_unlock();

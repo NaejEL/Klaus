@@ -1,6 +1,7 @@
 #include "main_menu_view.h"
 #include "wifi_menu_view.h"
 #include "splash_view.h"
+#include "rfid_menu_view.h"
 
 static view_handler_t *calling_view;
 
@@ -36,6 +37,7 @@ static void main_menu_input_handler(user_actions_t user_action)
     case KEY_CLICK_SHORT:
         splash_view_get_handler()->draw_view(main_menu_view_get_handler());
         break;
+
     case WHEEL_UP:
         current_item++;
         if (current_item >= MAIN_MENU_SIZE)
@@ -47,11 +49,32 @@ static void main_menu_input_handler(user_actions_t user_action)
         lv_image_set_src(main_menu_image, image_list[current_item]);
         lvgl_port_unlock();
         break;
+
+    case WHEEL_DOWN:
+        if (current_item > 0)
+        {
+            current_item--;
+        }
+        else
+        {
+            current_item = MAIN_MENU_SIZE - 1;
+        }
+        lvgl_port_lock(0);
+        lv_label_set_text(current_item_label, main_menu_texts[current_item]);
+        lv_image_set_src(main_menu_image, image_list[current_item]);
+        lvgl_port_unlock();
+        break;
+
     case WHEEL_CLICK_SHORT:
         if (current_item == MAIN_MENU_WIFI)
         {
             wifi_menu_view_get_handler()->draw_view(get_current_view_handler());
         }
+        else if (current_item == MAIN_MENU_RFID)
+        {
+            rfid_menu_view_get_handler()->draw_view(get_current_view_handler());
+        }
+
     default:
         break;
     }
@@ -98,6 +121,7 @@ void main_menu_view_init(void)
     main_menu_view_handler.clear_view = main_menu_view_clear;
     current_item = MAIN_MENU_WIFI;
     wifi_menu_view_init();
+    rfid_menu_view_init();
 }
 
 view_handler_t *main_menu_view_get_handler(void)

@@ -1,5 +1,5 @@
 /*
-Based on: 
+Based on:
 
 - https://github.com/JMare/esp-idf-bq27441
 - https://github.com/Xinyuan-LilyGO/T-Embed-CC1101/blob/master/examples/factory_test/peripheral/bq27220.h
@@ -60,7 +60,7 @@ union battery_state
     uint16_t full;
 };
 
-esp_err_t bq27220_init(i2c_port_t i2c_port);
+esp_err_t bq27220_init(i2c_port_t i2c_port, SemaphoreHandle_t _i2c_lock);
 
 uint16_t bq27220_get_device_id(void);
 uint16_t bq27220_get_battery_state(void);

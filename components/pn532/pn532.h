@@ -30,7 +30,7 @@
 
 typedef struct
 {
-    uint8_t ATQA;
+    uint16_t ATQA;
     uint8_t SAK;
     uint8_t uid_length;
     uint8_t uid[PN532_UID_MAX_SIZE];
@@ -45,4 +45,6 @@ uint32_t pn532_get_firmware_version(void);
 esp_err_t pn532_set_passive_activation_retries(uint8_t max_retries);
 const pn532_record_t *pn532_read_passive_targetID(uint8_t cardbaudrate, uint16_t timeout);
 void pn532_background_read_passive_targetID(uint8_t cardbaudrate, uint16_t timeout, pn532_callback callback);
+void pn532_cancel_read_task(void);
 const pn532_record_t *pn532_get_last_record(void);
+void pn532_get_last_uid_string(char *buffer);

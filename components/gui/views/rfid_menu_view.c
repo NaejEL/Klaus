@@ -16,10 +16,11 @@ typedef enum
 static const char *rfid_menu_texts[RFID_MENU_SIZE] = {
     "READ"};
 
-rfid_menu_items_t current_menu_item;
+static rfid_menu_items_t current_menu_item;
 
 typedef enum
 {
+    NOT_IN_VIEW,
     RFID_VIEW_MAIN,
     RFID_VIEW_READ,
     RFID_VIEW_TAG,
@@ -27,19 +28,37 @@ typedef enum
     RFID_VIEWS_SIZE
 } rfid_menu_views_t;
 
-rfid_menu_views_t current_view;
+static rfid_menu_views_t current_view = NOT_IN_VIEW;
+;
 
-lv_obj_t *spinner;
+static lv_obj_t *spinner;
+static lv_obj_t *tag_info_lbl;
 
 static void rfid_menu_draw_read_view(void);
-static void rfid_menu_draw_main_view(void);
+// static void rfid_menu_draw_main_view(void);
 static void rfid_menu_draw_tag_view(const pn532_record_t *record);
+static void rfid_menu_view_draw(view_handler_t *_calling_view);
 
 static void rfid_menu_input_handler(user_actions_t user_action)
 {
+    if (current_view == NOT_IN_VIEW)
+    {
+        return;
+    }
     if (user_action == KEY_CLICK_SHORT)
     {
-        calling_view->draw_view(rfid_menu_view_get_handler());
+        if (current_view == RFID_VIEW_MAIN)
+        {
+            calling_view->draw_view(get_current_view_handler());
+        }
+        else
+        {
+            if (current_view != RFID_VIEW_TAG)
+            {
+                pn532_cancel_read_task();
+            }
+            rfid_menu_view_draw(calling_view);
+        }
     }
     else if (user_action == WHEEL_CLICK_SHORT && current_view == RFID_VIEW_MAIN)
     {
@@ -49,24 +68,25 @@ static void rfid_menu_input_handler(user_actions_t user_action)
 
 static void rfid_menu_draw_tag_view(const pn532_record_t *record)
 {
+    if (current_view != RFID_VIEW_READ)
+    {
+        return;
+    }
     current_view = RFID_VIEW_TAG;
     lvgl_port_lock(0);
-
-    lv_obj_clean(rfid_menu_view);
     rfid_menu_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(rfid_menu_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(rfid_menu_view, LV_ALIGN_TOP_LEFT, 0, 20);
     lv_obj_add_style(rfid_menu_view, get_background_style(), LV_PART_MAIN);
 
-    lv_obj_t *tag_info_lbl = lv_label_create(rfid_menu_view);
+    tag_info_lbl = lv_label_create(rfid_menu_view);
     lv_obj_align(tag_info_lbl, LV_ALIGN_TOP_LEFT, 5, 5);
-    lv_label_set_text_fmt(tag_info_lbl,"ATQA:0x%02x SAK:0x%02x UID:%02X:%02X:%02X:%02X",
-    record->ATQA,
-    record->SAK,
-    record->uid[0],
-    record->uid[1],
-    record->uid[2],
-    record->uid[3]);
+    char uid_buffer[PN532_UID_MAX_SIZE * 2] = "";
+    pn532_get_last_uid_string(uid_buffer);
+    lv_label_set_text_fmt(tag_info_lbl, "UID: %s ATQA: %04x SAK: %02x",
+                          strupr(uid_buffer),
+                          record->ATQA,
+                          record->SAK);
     lvgl_port_unlock();
 }
 
@@ -74,8 +94,6 @@ static void rfid_menu_draw_read_view()
 {
     current_view = RFID_VIEW_READ;
     lvgl_port_lock(0);
-
-    lv_obj_clean(rfid_menu_view);
     rfid_menu_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(rfid_menu_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(rfid_menu_view, LV_ALIGN_TOP_LEFT, 0, 20);
@@ -95,7 +113,7 @@ static void rfid_menu_draw_read_view()
     lvgl_port_unlock();
     pn532_background_read_passive_targetID(PN532_MIFARE_ISO14443A, 0, &rfid_menu_draw_tag_view);
 }
-
+/*
 static void rfid_menu_draw_main_view()
 {
     current_view = RFID_VIEW_MAIN;
@@ -117,12 +135,15 @@ static void rfid_menu_draw_main_view()
             lv_obj_add_style((lv_obj_t *)menu_labels[i], get_highlight_style(), LV_PART_MAIN);
         }
         lv_label_set_text((lv_obj_t *)menu_labels[i], rfid_menu_texts[i]);
+        y += 20;
     }
     lvgl_port_unlock();
 }
+*/
 
 static void rfid_menu_view_clear()
 {
+    current_view = NOT_IN_VIEW;
     lvgl_port_lock(0);
     lv_obj_clean(rfid_menu_view);
     lvgl_port_unlock();
@@ -130,13 +151,37 @@ static void rfid_menu_view_clear()
 
 static void rfid_menu_view_draw(view_handler_t *_calling_view)
 {
+
     calling_view = _calling_view;
+    /*
     if (calling_view != rfid_menu_view_get_handler())
     {
         calling_view->clear_view();
     }
+    */
     set_current_view_handler(rfid_menu_view_get_handler());
-    rfid_menu_draw_main_view();
+    current_view = RFID_VIEW_MAIN;
+    lvgl_port_lock(0);
+    rfid_menu_view = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(rfid_menu_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
+    lv_obj_align(rfid_menu_view, LV_ALIGN_TOP_LEFT, 0, 20);
+    lv_obj_add_style(rfid_menu_view, get_background_style(), LV_PART_MAIN);
+
+    void *menu_labels[RFID_MENU_SIZE];
+    uint16_t y = 5;
+    for (size_t i = 0; i < RFID_MENU_SIZE; i++)
+    {
+        menu_labels[i] = lv_label_create(rfid_menu_view);
+        lv_obj_align((lv_obj_t *)menu_labels[i], LV_ALIGN_TOP_LEFT, 5, y);
+        lv_obj_add_style((lv_obj_t *)menu_labels[i], get_bigfont_style(), LV_PART_MAIN);
+        if (i == current_menu_item)
+        {
+            lv_obj_add_style((lv_obj_t *)menu_labels[i], get_highlight_style(), LV_PART_MAIN);
+        }
+        lv_label_set_text((lv_obj_t *)menu_labels[i], rfid_menu_texts[i]);
+        y += 20;
+    }
+    lvgl_port_unlock();
 }
 
 void rfid_menu_view_init(void)
@@ -146,7 +191,8 @@ void rfid_menu_view_init(void)
     rfid_menu_view_handler.draw_view = rfid_menu_view_draw;
     rfid_menu_view_handler.clear_view = rfid_menu_view_clear;
     current_menu_item = RFID_MENU_READ;
-    current_view = RFID_VIEW_MAIN;
+    current_view = NOT_IN_VIEW;
+    spinner = NULL;
 }
 
 view_handler_t *rfid_menu_view_get_handler(void)

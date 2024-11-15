@@ -22,6 +22,7 @@ static pn532_record_t pn532_last_record;
 static uint8_t cardbaudrate;
 static uint16_t timeout;
 static pn532_callback callback;
+static TaskHandle_t read_task = NULL;
 
 static esp_err_t pn532_write_command(uint8_t *cmd, size_t cmd_length);
 static void pn532_hardware_reset(void);
@@ -35,8 +36,26 @@ static bool pn532_read_ack(void);
 
 static void pn532_launch_read_task(void *pvParams)
 {
-    callback(pn532_read_passive_targetID(cardbaudrate, timeout));
-    vTaskDelete(NULL);
+    const pn532_record_t *to_return = pn532_read_passive_targetID(cardbaudrate, timeout);
+    if (to_return == NULL)
+    {
+        callback(&pn532_last_record);
+    }
+    else
+    {
+        callback(to_return);
+    }
+    vTaskDelete(read_task);
+    read_task = NULL;
+}
+
+void pn532_cancel_read_task()
+{
+    if (read_task != NULL)
+    {
+        vTaskDelete(read_task);
+        read_task = NULL;
+    }
 }
 
 static esp_err_t pn532_read_data(uint8_t *buff, size_t buffer_size)
@@ -224,6 +243,7 @@ void pn532_i2c_init(i2c_port_t _i2c_port, gpio_port_t _irq, gpio_port_t _reset, 
     i2c_port = _i2c_port;
     irq = _irq;
     reset = _reset;
+    memset(&pn532_last_record, 0, sizeof(pn532_record_t));
 
     gpio_set_direction(irq, GPIO_MODE_INPUT);
     gpio_set_direction(reset, GPIO_MODE_OUTPUT);
@@ -370,5 +390,19 @@ void pn532_background_read_passive_targetID(uint8_t _cardbaudrate, uint16_t _tim
     cardbaudrate = _cardbaudrate;
     timeout = _timeout;
     callback = _callback;
-    xTaskCreate(pn532_launch_read_task, "PN532ReadTask", 4096, NULL, 4, NULL);
+    xTaskCreate(pn532_launch_read_task, "PN532ReadTask", 4096, NULL, 4, &read_task);
+}
+
+void pn532_get_last_uid_string(char *buffer)
+{
+    size_t nb_char = 0;
+    char temp[] = "00";
+    for (size_t i = 0; i < pn532_last_record.uid_length; i++)
+    {
+        sprintf(temp, "%02x", pn532_last_record.uid[i]);
+        strcat(buffer, temp);
+        nb_char += 2;
+    }
+    buffer[nb_char] = '\0';
+    return;
 }

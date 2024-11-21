@@ -161,14 +161,9 @@ static void status_bar_draw()
     lv_image_set_src(wifi_logo, &wifi_nok_15);
     lv_obj_align(wifi_logo, LV_ALIGN_TOP_LEFT, 55, 2);
 
-    // Battery Label
-    //battery_label = lv_label_create(status_bar);
-    //lv_obj_align(battery_label, LV_ALIGN_TOP_LEFT, 54, 2);
-    //lv_label_set_text_fmt(battery_label, "%d%%", 0);
-
     // Time Label
     time_label = lv_label_create(status_bar);
-    lv_obj_align(time_label, LV_ALIGN_TOP_LEFT, 205, 2);
+    lv_obj_align(time_label, LV_ALIGN_TOP_LEFT, 180, 5);
     lv_label_set_text(time_label, "");
 
     battery_bar = lv_bar_create(status_bar);

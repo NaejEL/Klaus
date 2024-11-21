@@ -17,7 +17,7 @@ This firmware is largely inspired by the awesome [BRUCE](https://github.com/pr3y
 - [x] SD SPI [sd_spi](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/sdspi_host.html)
 - [x] Battery PPM
 - [x] Wifi
-- [ ] PN532
+- [x] PN532
 - [ ] IR [RMT](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/rmt.html)
 - [ ] CC1101 [Component](https://components.espressif.com/components/jgromes/radiolib/versions/7.0.2)
 - [ ] Speaker & Microphone [Component](https://components.espressif.com/components/espressif/esp_codec_dev/versions/1.3.1)

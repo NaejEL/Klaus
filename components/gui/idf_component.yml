@@ -1,2 +1,2 @@
 dependencies:
-  espressif/esp_lvgl_port: "^2.3.3"
+  espressif/esp_lvgl_port: "^2.4.2"

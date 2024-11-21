@@ -17,7 +17,7 @@
 #define LCD_SWAP_XY (1)
 #define LCD_MIRROR_X (0)
 #define LCD_MIRROR_Y (1)
-#define LCD_DRAW_BUFF_SIZE (LCD_H_RES * 20) // *100
+#define LCD_DRAW_BUFF_SIZE (LCD_H_RES * 10) // *100
 #define LCD_DRAW_BUFF_DOUBLE (1)
 #define LCD_USE_DMA (1)
 #define LCD_USE_SPIRAM (0)

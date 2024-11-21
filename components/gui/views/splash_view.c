@@ -35,9 +35,6 @@ static void splash_input_handler(user_actions_t user_action)
 {
     switch (user_action)
     {
-    case KEY_CLICK_SHORT:
-        calling_view->draw_view(splash_view_get_handler());
-        break;
     case WHEEL_UP:
         current_image_index++;
         if (current_image_index >= NB_IMAGES)

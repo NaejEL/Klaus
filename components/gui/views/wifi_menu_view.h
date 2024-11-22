@@ -6,4 +6,4 @@
 
 void wifi_menu_view_init(void);
 
-view_handler_t* wifi_menu_view_get_handler(void);
+view_handler_t *wifi_menu_view_get_handler(void);

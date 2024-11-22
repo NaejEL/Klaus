@@ -14,10 +14,10 @@
 #define STATUS_BAR_HEIGHT (20)
 #define STATUS_BAR_WIDTH (320)
 
-#define BATTERY_BAR_REFRESH_RATE 300
-#define SD_LOGO_REFRESH_RATE 3000
-#define WIFI_LOGO_REFRESH_RATE 1000
-#define CLOCK_REFRESH_RATE 100
+#define BATTERY_BAR_REFRESH_RATE 3000
+#define SD_LOGO_REFRESH_RATE 5000
+#define WIFI_LOGO_REFRESH_RATE 500
+#define CLOCK_REFRESH_RATE 300
 
 // LVGL images declaration
 LV_IMG_DECLARE(battery_15);
@@ -125,27 +125,7 @@ static void status_bar_draw()
     lv_obj_align(status_bar, LV_ALIGN_TOP_LEFT, 0, 0);
 
     // Set status bar style
-    static lv_style_t status_bar_style;
-    lv_style_init(&status_bar_style);
-    lv_style_reset(&status_bar_style);
-    lv_style_set_bg_color(&status_bar_style, lv_color_hex(BACKGROUND_COLOR));
-    lv_style_set_text_color(&status_bar_style, lv_color_hex(TEXT_COLOR));
-    lv_style_set_radius(&status_bar_style, 0);
-    lv_style_set_border_width(&status_bar_style, 0);
-    lv_style_set_pad_all(&status_bar_style, 0);
-    lv_obj_add_style(status_bar, &status_bar_style, LV_PART_MAIN);
-    // Add a gradient to background
-    static lv_grad_dsc_t grad;
-    grad.dir = LV_GRAD_DIR_VER;
-    grad.stops_count = 2;
-    grad.stops[0].color = lv_color_hex(BACKGROUND_GRAD_COLOR);
-    grad.stops[0].opa = LV_OPA_COVER;
-    grad.stops[1].color = lv_color_hex(BACKGROUND_COLOR);
-    grad.stops[1].opa = LV_OPA_COVER;
-    /*Shift the gradient to the bottom*/
-    grad.stops[0].frac = 100;
-    grad.stops[1].frac = 200;
-    lv_style_set_bg_grad(&status_bar_style, &grad);
+    lv_obj_add_style(status_bar, style_get_background_status_bar(), LV_PART_MAIN);
 
     battery_logo = lv_image_create(status_bar);
     lv_image_set_src(battery_logo, &battery_15);
@@ -159,28 +139,28 @@ static void status_bar_draw()
     // Wifi Logo
     wifi_logo = lv_image_create(status_bar);
     lv_image_set_src(wifi_logo, &wifi_nok_15);
-    lv_obj_align(wifi_logo, LV_ALIGN_TOP_LEFT, 55, 2);
+    lv_obj_align(wifi_logo, LV_ALIGN_TOP_LEFT, 45, 2);
 
     // Time Label
     time_label = lv_label_create(status_bar);
-    lv_obj_align(time_label, LV_ALIGN_TOP_LEFT, 180, 5);
+    lv_obj_align(time_label, LV_ALIGN_TOP_MID, 0, 5);
     lv_label_set_text(time_label, "");
 
     battery_bar = lv_bar_create(status_bar);
     lv_obj_remove_style_all(battery_bar);
-    lv_obj_add_style(battery_bar, get_bar_style_background(), 0);
-    lv_obj_add_style(battery_bar, get_bar_style_indic(), LV_PART_INDICATOR);
-    lv_obj_set_size(battery_bar, 35, 10);
+    lv_obj_add_style(battery_bar, style_get_bar_background(), 0);
+    lv_obj_add_style(battery_bar, style_get_bar_indic(), LV_PART_INDICATOR);
+    lv_obj_set_size(battery_bar, 25, 10);
     lv_obj_align(battery_bar, LV_ALIGN_TOP_LEFT, 15, 5);
     lv_bar_set_value(battery_bar, 0, LV_ANIM_OFF);
 
     // Wifi Bar
     wifi_bar = lv_bar_create(status_bar);
     lv_obj_remove_style_all(wifi_bar);
-    lv_obj_add_style(wifi_bar, get_bar_style_background(), 0);
-    lv_obj_add_style(wifi_bar, get_bar_style_indic(), LV_PART_INDICATOR);
-    lv_obj_set_size(wifi_bar, 30, 10);
-    lv_obj_align(wifi_bar, LV_ALIGN_TOP_LEFT, 77, 5);
+    lv_obj_add_style(wifi_bar, style_get_bar_background(), 0);
+    lv_obj_add_style(wifi_bar, style_get_bar_indic(), LV_PART_INDICATOR);
+    lv_obj_set_size(wifi_bar, 25, 10);
+    lv_obj_align(wifi_bar, LV_ALIGN_TOP_LEFT, 67, 5);
     lv_bar_set_value(wifi_bar, 0, LV_ANIM_OFF);
 
     lvgl_port_unlock();

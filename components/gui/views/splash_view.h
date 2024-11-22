@@ -6,4 +6,4 @@
 
 void splash_view_init(void);
 
-view_handler_t* splash_view_get_handler(void);
+view_handler_t *splash_view_get_handler(void);

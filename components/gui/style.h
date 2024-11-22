@@ -1,6 +1,12 @@
 #pragma once
 #include "view_commons.h"
 
+/*
+
+Color Palette: https://www.color-hex.com/color-palette/1052927
+
+*/
+
 #define MAIN_SCREEN_HEIGHT (150)
 #define MAIN_SCREEN_WIDTH (320)
 
@@ -11,7 +17,7 @@
 #define FOREGROUND_GRAD_COLOR (0xE75F3F)
 
 #define HIGHLIGHT_COLOR (0x00EBBE)
-#define HIGHLIGHT_ALT_COLOR (0x259FDA)
+#define HIGHLIGHT_ALT_COLOR (0xF8B234)
 #define DANGER_COLOR (0xE75F3F)
 
 #define TEXT_COLOR (0XF9EDC6)
@@ -25,6 +31,7 @@ lv_style_t *style_get_background_status_bar(void);
 lv_style_t *style_get_background_transparent(void);
 lv_style_t *style_get_background_danger(void);
 lv_style_t *style_get_background_highlight(void);
+lv_style_t *style_get_background_alt_highlight(void);
 
 lv_style_t *style_get_font_bigfont(void);
 lv_style_t *style_get_font_highlight(void);

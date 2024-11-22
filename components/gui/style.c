@@ -4,6 +4,7 @@ static lv_style_t background_main;
 static lv_style_t background_status_bar;
 static lv_style_t background_transparent;
 static lv_style_t background_highlight;
+static lv_style_t background_alt_highlight;
 static lv_style_t background_danger;
 
 static lv_style_t font_bigfont;
@@ -27,7 +28,11 @@ void style_init(void) {
 
   // Highlight background
   lv_style_init(&background_highlight);
-  lv_style_set_bg_color(&background_highlight,
+  lv_style_set_bg_color(&background_highlight, lv_color_hex(HIGHLIGHT_COLOR));
+
+  // Highlight Alt background
+  lv_style_init(&background_alt_highlight);
+  lv_style_set_bg_color(&background_alt_highlight,
                         lv_color_hex(HIGHLIGHT_ALT_COLOR));
 
   // Danger background use by scrollbar
@@ -133,6 +138,10 @@ lv_style_t *style_get_background_transparent(void) {
 
 lv_style_t *style_get_background_highlight(void) {
   return &background_highlight;
+}
+
+lv_style_t *style_get_background_alt_highlight(void) {
+  return &background_alt_highlight;
 }
 
 lv_style_t *style_get_background_danger(void) { return &background_danger; }

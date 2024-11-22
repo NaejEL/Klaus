@@ -33,4 +33,4 @@
 #define BQ27220_COMMAND_RAW_TEMP 0X7E        // RawIntTemp()
 
 // Unseal key
-#define BQ27220_UNSEAL_KEY	0x8000
+#define BQ27220_UNSEAL_KEY 0x8000

@@ -99,7 +99,7 @@ static void main_menu_view_draw(view_handler_t *_calling_view)
     main_menu_view = lv_obj_create(lv_screen_active());
     lv_obj_set_size(main_menu_view, MAIN_SCREEN_WIDTH, MAIN_SCREEN_HEIGHT);
     lv_obj_align(main_menu_view, LV_ALIGN_TOP_LEFT, 0, 20);
-    lv_obj_add_style(main_menu_view, get_background_style(), LV_PART_MAIN);
+    lv_obj_add_style(main_menu_view, style_get_background_main(), LV_PART_MAIN);
 
     main_menu_image = lv_image_create(main_menu_view);
     lv_image_set_src(main_menu_image, image_list[current_item]);
@@ -108,7 +108,7 @@ static void main_menu_view_draw(view_handler_t *_calling_view)
     current_item_label = lv_label_create(main_menu_view);
     lv_label_set_text(current_item_label, main_menu_texts[current_item]);
     lv_obj_align(current_item_label, LV_ALIGN_CENTER, 0, 50);
-    lv_obj_add_style(current_item_label, get_bigfont_style(), LV_PART_MAIN);
+    lv_obj_add_style(current_item_label, style_get_font_bigfont(), LV_PART_MAIN);
 
     lvgl_port_unlock();
 }

@@ -3,8 +3,8 @@
 static const char *TAG = "Display";
 
 // ST7789 LCD
-#include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
+#include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_types.h"
 
 // Backlight
@@ -45,66 +45,70 @@ static esp_lcd_panel_handle_t panel_handle = NULL;
 
 static bool backlight_state = false;
 
-static esp_err_t display_backlight_init(void)
-{
-    return gpio_set_direction(LCD_BACKLIGHT, GPIO_MODE_OUTPUT);
+static esp_err_t display_backlight_init(void) {
+  return gpio_set_direction(LCD_BACKLIGHT, GPIO_MODE_OUTPUT);
 }
 
-esp_err_t display_init(spi_host_device_t spi_host)
-{
-    const esp_lcd_panel_io_spi_config_t io_config = {
-        .cs_gpio_num = LCD_CS,
-        .dc_gpio_num = LCD_DC,
-        .spi_mode = 0,
-        .pclk_hz = LCD_PIXEL_CLOCK_HZ,
-        .trans_queue_depth = LCD_QUEUE_SIZE,
-        .lcd_cmd_bits = LCD_CMD_BITS,
-        .lcd_param_bits = LCD_PARAM_BITS,
-    };
-    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host, &io_config, &io_handle), TAG, "LCD new panel IO SPI failed");
+esp_err_t display_init(spi_host_device_t spi_host) {
+  const esp_lcd_panel_io_spi_config_t io_config = {
+      .cs_gpio_num = LCD_CS,
+      .dc_gpio_num = LCD_DC,
+      .spi_mode = 0,
+      .pclk_hz = LCD_PIXEL_CLOCK_HZ,
+      .trans_queue_depth = LCD_QUEUE_SIZE,
+      .lcd_cmd_bits = LCD_CMD_BITS,
+      .lcd_param_bits = LCD_PARAM_BITS,
+  };
+  ESP_RETURN_ON_ERROR(
+      esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host, &io_config,
+                               &io_handle),
+      TAG, "LCD new panel IO SPI failed");
 
-    const esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = LCD_RST,
-        .color_space = LCD_COLOR_SPACE,
-        .bits_per_pixel = LCD_BITS_PER_PIXEL,
-    };
-    ESP_RETURN_ON_ERROR(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle), TAG, "Create LCD panel failed");
+  const esp_lcd_panel_dev_config_t panel_config = {
+      .reset_gpio_num = LCD_RST,
+      .color_space = LCD_COLOR_SPACE,
+      .bits_per_pixel = LCD_BITS_PER_PIXEL,
+  };
+  ESP_RETURN_ON_ERROR(
+      esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle), TAG,
+      "Create LCD panel failed");
 
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_reset(panel_handle), TAG, "LCD Panel Reset failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_handle), TAG, "LCD panel init failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_swap_xy(panel_handle, LCD_SWAP_XY), TAG, "LCD panel swap X/Y failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_mirror(panel_handle, LCD_MIRROR_X, LCD_MIRROR_Y), TAG, "LCD panel mirror failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_invert_color(panel_handle, LCD_INVERT_COLOR), TAG, "LCD panel invert color failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_set_gap(panel_handle, LCD_X_GAP, LCD_Y_GAP), TAG, "LCD panel set gap failed");
-    ESP_RETURN_ON_ERROR(display_backlight_init(), TAG, "LCD backlight init failed");
-    ESP_RETURN_ON_ERROR(esp_lcd_panel_disp_on_off(panel_handle, true), TAG, "LCD Panel turn on failed");
-    display_backlight_init();
-    return ESP_OK;
+  ESP_RETURN_ON_ERROR(esp_lcd_panel_reset(panel_handle), TAG,
+                      "LCD Panel Reset failed");
+  ESP_RETURN_ON_ERROR(esp_lcd_panel_init(panel_handle), TAG,
+                      "LCD panel init failed");
+  ESP_RETURN_ON_ERROR(esp_lcd_panel_swap_xy(panel_handle, LCD_SWAP_XY), TAG,
+                      "LCD panel swap X/Y failed");
+  ESP_RETURN_ON_ERROR(
+      esp_lcd_panel_mirror(panel_handle, LCD_MIRROR_X, LCD_MIRROR_Y), TAG,
+      "LCD panel mirror failed");
+  ESP_RETURN_ON_ERROR(
+      esp_lcd_panel_invert_color(panel_handle, LCD_INVERT_COLOR), TAG,
+      "LCD panel invert color failed");
+  ESP_RETURN_ON_ERROR(esp_lcd_panel_set_gap(panel_handle, LCD_X_GAP, LCD_Y_GAP),
+                      TAG, "LCD panel set gap failed");
+  ESP_RETURN_ON_ERROR(display_backlight_init(), TAG,
+                      "LCD backlight init failed");
+  ESP_RETURN_ON_ERROR(esp_lcd_panel_disp_on_off(panel_handle, true), TAG,
+                      "LCD Panel turn on failed");
+  display_backlight_init();
+  return ESP_OK;
 }
 
-esp_lcd_panel_io_handle_t display_get_io_handle()
-{
-    return io_handle;
+esp_lcd_panel_io_handle_t display_get_io_handle() { return io_handle; }
+
+esp_lcd_panel_handle_t display_get_panel_handle() { return panel_handle; }
+
+void display_backlight_on(void) {
+  gpio_set_level(LCD_BACKLIGHT, 1);
+  backlight_state = true;
 }
 
-esp_lcd_panel_handle_t display_get_panel_handle()
-{
-    return panel_handle;
+void display_backlight_off(void) {
+  gpio_set_level(LCD_BACKLIGHT, 0);
+  backlight_state = false;
 }
 
-void display_backlight_on(void)
-{
-    gpio_set_level(LCD_BACKLIGHT, 1);
-    backlight_state = true;
-}
-
-void display_backlight_off(void)
-{
-    gpio_set_level(LCD_BACKLIGHT, 0);
-    backlight_state = false;
-}
-
-void display_backlight_toggle(void)
-{
-    backlight_state ? display_backlight_off() : display_backlight_on();
+void display_backlight_toggle(void) {
+  backlight_state ? display_backlight_off() : display_backlight_on();
 }

@@ -118,6 +118,6 @@
 #define PN532_GPIO_P34 (4)              ///< GPIO 34
 #define PN532_GPIO_P35 (5)              ///< GPIO 35
 
-#define I2C_WRITE_TIMEOUT                   1000  //ms
-#define I2C_READ_TIMEOUT                    1000  //ms
-#define IRQ_WAIT_TIMEOUT                    1000  //ms
+#define I2C_WRITE_TIMEOUT 1000 // ms
+#define I2C_READ_TIMEOUT 1000  // ms
+#define IRQ_WAIT_TIMEOUT 1000  // ms

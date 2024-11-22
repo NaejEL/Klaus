@@ -42,6 +42,7 @@ void style_init(void) {
   lv_style_set_radius(&background_status_bar, 0);
   lv_style_set_border_width(&background_status_bar, 0);
   lv_style_set_pad_all(&background_status_bar, 0);
+
   // Add a gradient to background
   static lv_grad_dsc_t grad_bar;
   grad_bar.dir = LV_GRAD_DIR_VER;
@@ -94,15 +95,14 @@ void style_init(void) {
   // Bar indic
   lv_style_init(&bar_indic);
   lv_style_set_bg_opa(&bar_indic, LV_OPA_COVER);
-  lv_style_set_bg_color(&bar_indic, lv_color_hex(FOREGROUND_COLOR));
   lv_style_set_radius(&bar_indic, 6);
   // Add a gradient to bar indic
   static lv_grad_dsc_t bar_grad;
   bar_grad.dir = LV_GRAD_DIR_HOR;
   bar_grad.stops_count = 2;
-  bar_grad.stops[0].color = lv_color_hex(FOREGROUND_GRAD_COLOR);
+  bar_grad.stops[0].color = lv_color_hex(FOREGROUND_COLOR);
   bar_grad.stops[0].opa = LV_OPA_COVER;
-  bar_grad.stops[1].color = lv_color_hex(FOREGROUND_COLOR);
+  bar_grad.stops[1].color = lv_color_hex(FOREGROUND_GRAD_COLOR);
   bar_grad.stops[1].opa = LV_OPA_COVER;
   /*Shift the gradient to the bottom*/
   bar_grad.stops[0].frac = 100;
@@ -111,7 +111,7 @@ void style_init(void) {
 
   // Bar background
   lv_style_init(&bar_bg);
-  lv_style_set_bg_opa(&bar_bg, LV_OPA_30);
+  lv_style_set_bg_opa(&bar_bg, LV_OPA_40);
   lv_style_set_bg_color(&bar_bg, lv_color_hex(BAR_BACKGROUND_COLOR));
   lv_style_set_radius(&bar_bg, 6);
 

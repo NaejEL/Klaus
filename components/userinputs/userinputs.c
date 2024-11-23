@@ -9,22 +9,16 @@ static const char *TAG = "User Inputs";
 // Key Button
 #include "iot_button.h"
 
-#define KEY_BTN (GPIO_NUM_6)
 #define KEY_BTN_LONG_CLICK (2000)
 #define KEY_BTN_SHORT_CLICK (50)
 
 static button_handle_t key_btn = NULL;
 
 // Knob
-#include "driver/gpio.h"
 #include "driver/pulse_cnt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
-#define KNOB_A (GPIO_NUM_4)
-#define KNOB_B (GPIO_NUM_5)
-
-#define KNOB_BTN (GPIO_NUM_0)
 #define KNOB_LONG_CLICK (1000)
 #define KNOB_SHORT_CLICK (50)
 
@@ -122,7 +116,8 @@ static bool pcnt_on_reach(pcnt_unit_handle_t unit,
   return (high_task_wakeup == pdTRUE);
 }
 
-esp_err_t userinputs_init(void) {
+esp_err_t userinputs_init(gpio_num_t key, gpio_num_t wheel_btn,
+                          gpio_num_t wheel_a, gpio_num_t wheel_b) {
   // Allocate space for callback list
   userinputs_callbacks =
       malloc(userinput_callback_capacity * sizeof(userinputs_callback));
@@ -134,7 +129,7 @@ esp_err_t userinputs_init(void) {
       .short_press_time = KEY_BTN_SHORT_CLICK,
       .gpio_button_config =
           {
-              .gpio_num = KEY_BTN,
+              .gpio_num = key,
               .active_level = 0,
           },
   };
@@ -155,7 +150,7 @@ esp_err_t userinputs_init(void) {
       .short_press_time = KNOB_SHORT_CLICK,
       .gpio_button_config =
           {
-              .gpio_num = KNOB_BTN,
+              .gpio_num = wheel_btn,
               .active_level = 0,
           },
   };
@@ -183,16 +178,16 @@ esp_err_t userinputs_init(void) {
 
   // Channel A
   pcnt_chan_config_t chan_a_config = {
-      .edge_gpio_num = KNOB_A,
-      .level_gpio_num = KNOB_B,
+      .edge_gpio_num = wheel_a,
+      .level_gpio_num = wheel_b,
   };
   pcnt_channel_handle_t pcnt_chan_a = NULL;
   ESP_RETURN_ON_ERROR(pcnt_new_channel(pcnt_unit, &chan_a_config, &pcnt_chan_a),
                       TAG, "Failed to init channel A");
   // Channel B
   pcnt_chan_config_t chan_b_config = {
-      .edge_gpio_num = KNOB_B,
-      .level_gpio_num = KNOB_A,
+      .edge_gpio_num = wheel_b,
+      .level_gpio_num = wheel_a,
   };
   pcnt_channel_handle_t pcnt_chan_b = NULL;
   ESP_RETURN_ON_ERROR(pcnt_new_channel(pcnt_unit, &chan_b_config, &pcnt_chan_b),

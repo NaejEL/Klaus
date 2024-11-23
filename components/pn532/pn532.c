@@ -272,7 +272,7 @@ void pn532_cancel_read_task() {
   }
 }
 
-static bool pn532_is_ready() { return (gpio_get_level(PN532_IRQ) == 0x00); }
+static bool pn532_is_ready() { return (gpio_get_level(irq) == 0x00); }
 
 static bool pn532_wait_ready(uint16_t timeout) {
   uint16_t timer = 0;

@@ -7,9 +7,9 @@ static char *error_msg = "SD Error";
 static sdmmc_card_t *card;
 static bool sd_present = false;
 
-esp_err_t sd_init(spi_host_device_t spi_host) {
+esp_err_t sd_init(spi_host_device_t spi_host, gpio_num_t cs) {
   sdspi_device_config_t sd_device = SDSPI_DEVICE_CONFIG_DEFAULT();
-  sd_device.gpio_cs = SD_SPI_CS;
+  sd_device.gpio_cs = cs;
   sd_device.host_id = spi_host;
 
   sdspi_dev_handle_t sd_handle;

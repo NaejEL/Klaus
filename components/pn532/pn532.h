@@ -14,9 +14,6 @@
 #include "driver/i2c.h"
 #include <string.h>
 
-#define PN532_IRQ GPIO_NUM_17
-#define PN532_RESET GPIO_NUM_45
-
 #define PN532_PACKBUFFSIZ 64
 
 #define PN532_MIFARE_ISO14443A (0x00) // MiFare

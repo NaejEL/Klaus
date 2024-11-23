@@ -102,6 +102,7 @@ void app_main(void) {
 
   if (sd_is_present()) {
     config_parse_config(&klaus_config);
+    display_blacklight_set_default_intensity(klaus_config.backlight);
     wifi_connect(klaus_config.ssid, klaus_config.pass, klaus_config.hostname);
     clock_set(klaus_config.timezone);
   }

@@ -5,12 +5,10 @@
 #include "sdmmc_cmd.h"
 #include <string.h>
 
-#define SD_SPI_CS (GPIO_NUM_13)
-
 #define MOUNT_POINT "/KlausSD"
 #define MAX_PATH_SIZE 254
 
-esp_err_t sd_init(spi_host_device_t spi_host);
+esp_err_t sd_init(spi_host_device_t spi_host, gpio_num_t cs);
 
 esp_err_t sd_write_file(const char *path, char *data);
 

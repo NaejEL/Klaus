@@ -7,9 +7,6 @@ static const char *TAG = "Display";
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_types.h"
 
-// Backlight
-#include "driver/gpio.h"
-
 /* LCD color formats */
 #define ESP_LCD_COLOR_FORMAT_RGB565 (1)
 #define ESP_LCD_COLOR_FORMAT_RGB888 (2)
@@ -26,11 +23,6 @@ static const char *TAG = "Display";
 #define LCD_X_GAP (0)
 #define LCD_INVERT_COLOR (1)
 
-#define LCD_CS (GPIO_NUM_41)
-#define LCD_DC (GPIO_NUM_16)
-#define LCD_RST (GPIO_NUM_40)
-#define LCD_BACKLIGHT (GPIO_NUM_21)
-
 #define LCD_PIXEL_CLOCK_HZ SPI_MASTER_FREQ_80M
 #define LCD_SPI_NUM (SPI2_HOST)
 
@@ -42,17 +34,20 @@ static const char *TAG = "Display";
 
 static esp_lcd_panel_io_handle_t io_handle = NULL;
 static esp_lcd_panel_handle_t panel_handle = NULL;
+static gpio_num_t backlight_pin;
 
 static bool backlight_state = false;
 
 static esp_err_t display_backlight_init(void) {
-  return gpio_set_direction(LCD_BACKLIGHT, GPIO_MODE_OUTPUT);
+  return gpio_set_direction(backlight_pin, GPIO_MODE_OUTPUT);
 }
 
-esp_err_t display_init(spi_host_device_t spi_host) {
+esp_err_t display_init(spi_host_device_t spi_host, gpio_num_t cs, gpio_num_t dc,
+                       gpio_num_t reset, gpio_num_t backlight) {
+  backlight_pin = backlight;
   const esp_lcd_panel_io_spi_config_t io_config = {
-      .cs_gpio_num = LCD_CS,
-      .dc_gpio_num = LCD_DC,
+      .cs_gpio_num = cs,
+      .dc_gpio_num = dc,
       .spi_mode = 0,
       .pclk_hz = LCD_PIXEL_CLOCK_HZ,
       .trans_queue_depth = LCD_QUEUE_SIZE,
@@ -65,7 +60,7 @@ esp_err_t display_init(spi_host_device_t spi_host) {
       TAG, "LCD new panel IO SPI failed");
 
   const esp_lcd_panel_dev_config_t panel_config = {
-      .reset_gpio_num = LCD_RST,
+      .reset_gpio_num = reset,
       .color_space = LCD_COLOR_SPACE,
       .bits_per_pixel = LCD_BITS_PER_PIXEL,
   };
@@ -100,12 +95,12 @@ esp_lcd_panel_io_handle_t display_get_io_handle() { return io_handle; }
 esp_lcd_panel_handle_t display_get_panel_handle() { return panel_handle; }
 
 void display_backlight_on(void) {
-  gpio_set_level(LCD_BACKLIGHT, 1);
+  gpio_set_level(backlight_pin, 1);
   backlight_state = true;
 }
 
 void display_backlight_off(void) {
-  gpio_set_level(LCD_BACKLIGHT, 0);
+  gpio_set_level(backlight_pin, 0);
   backlight_state = false;
 }
 

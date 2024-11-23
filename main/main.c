@@ -5,35 +5,23 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-static const char *TAG = "KlausFirmware";
-
-// I2C
-#include <driver/i2c.h>
-#define SDA_PIN (GPIO_NUM_8)
-#define SCL_PIN (GPIO_NUM_18)
-#define I2C_PORT_NUM I2C_NUM_0
-#define I2C_FREQ 100000
-SemaphoreHandle_t i2c_lock = NULL;
-
-// SPI
-#define SPI_MIS0 (GPIO_NUM_10)
-#define SPI_MOSI (GPIO_NUM_9)
-#define SPI_CLK (GPIO_NUM_11)
-#define SPI_NUM (SPI2_HOST)
-
 #include "battery.h"
 #include "clock.h"
 #include "config.h"
 #include "display.h"
 #include "gui.h"
+#include "peripherals.h"
+#include "pn532.h"
 #include "sd.h"
 #include "userinputs.h"
 #include "wifi.h"
+
+static const char *TAG = "KlausFirmware";
+
+SemaphoreHandle_t i2c_lock = NULL;
 klaus_config_t klaus_config;
 
-#include "pn532.h"
-
-static void i2c_init(void) {
+static esp_err_t i2c_init(void) {
   i2c_config_t conf = {};
   conf.mode = I2C_MODE_MASTER;
   conf.sda_io_num = SDA_PIN;
@@ -41,10 +29,21 @@ static void i2c_init(void) {
   conf.scl_io_num = SCL_PIN;
   conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
   conf.master.clk_speed = I2C_FREQ;
-  i2c_param_config(I2C_PORT_NUM, &conf);
-  i2c_driver_install(I2C_PORT_NUM, conf.mode, 0, 0, 0);
+  esp_err_t result = i2c_param_config(I2C_PORT_NUM, &conf);
+  if (result != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot configure i2c: %s", __func__,
+             esp_err_to_name(result));
+    return result;
+  }
+  result = i2c_driver_install(I2C_PORT_NUM, conf.mode, 0, 0, 0);
+  if (result != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot install i2c driver: %s", __func__,
+             esp_err_to_name(result));
+    return result;
+  }
   i2c_lock = xSemaphoreCreateBinary();
   xSemaphoreGive(i2c_lock);
+  return ESP_OK;
 }
 
 static esp_err_t spi_init(void) {
@@ -63,22 +62,43 @@ static esp_err_t spi_init(void) {
 }
 
 void app_main(void) {
+
+  ESP_LOGI(TAG, "Restart reason:%d", esp_reset_reason());
   //  Power LEDs and CC1101
-  gpio_set_direction(GPIO_NUM_15, GPIO_MODE_OUTPUT);
-  gpio_set_level(GPIO_NUM_15, 1);
+  gpio_set_direction(POWER_SWITCH, GPIO_MODE_OUTPUT);
+  gpio_set_level(POWER_SWITCH, 1);
 
-  userinputs_init();
+  if (userinputs_init(KEY_BTN, KNOB_BTN, KNOB_A, KNOB_B) != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot initialize user inputs", __func__);
+    esp_restart();
+  }
 
-  spi_init();
-  sd_init(SPI_NUM);
-
-  display_init(SPI_NUM);
-  display_backlight_on();
-  gui_init();
-
-  i2c_init();
+  if (i2c_init() != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot initialize I2C", __func__);
+    esp_restart();
+  }
   pn532_i2c_init(I2C_PORT_NUM, PN532_IRQ, PN532_RESET, i2c_lock);
   battery_init(I2C_PORT_NUM, i2c_lock);
+
+  if (spi_init() != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot initialize SPI", __func__);
+    esp_restart();
+  }
+
+  if (display_init(SPI_NUM, LCD_CS, LCD_DC, LCD_RST, LCD_BACKLIGHT) != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot initialize display", __func__);
+    esp_restart();
+  }
+
+  if (gui_init() != ESP_OK) {
+    ESP_LOGE(TAG, "%s: Cannot start GUI", __func__);
+    esp_restart();
+  }
+  display_backlight_on();
+
+  if (sd_init(SPI_NUM, SD_CS) != ESP_OK) {
+    ESP_LOGI(TAG, "%s: Cannot initialise TF Card", __func__);
+  }
 
   if (sd_is_present()) {
     config_parse_config(&klaus_config);

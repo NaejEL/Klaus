@@ -6,8 +6,8 @@
 #include "esp_log.h"
 
 // SPI
-#include "driver/spi_master.h"
 #include "driver/gpio.h"
+#include "driver/spi_master.h"
 
 // ESP LCD
 #include "esp_lcd_panel_io.h"
@@ -32,7 +32,7 @@ esp_lcd_panel_io_handle_t display_get_io_handle();
 esp_lcd_panel_handle_t display_get_panel_handle();
 
 void display_backlight_on(void);
-
 void display_backlight_off(void);
-
 void display_backlight_toggle(void);
+void display_backlight_intensity(uint8_t intensity);
+void display_blacklight_set_default_intensity(uint8_t intensity);

@@ -5,8 +5,6 @@
 #include "esp_err.h"
 #include "esp_log.h"
 
-#include <cJSON.h>
-
 #define CONF_ITEMS                                                             \
   CONF_ITEM(char *, ssid, "None")                                              \
   CONF_ITEM(char *, pass, "")                                                  \

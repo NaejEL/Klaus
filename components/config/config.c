@@ -1,6 +1,7 @@
 #include "config.h"
-
 #include "sd.h"
+#include <cJSON.h>
+
 static const char *TAG = "Config";
 static const char *config_file = "klaus_config.json";
 

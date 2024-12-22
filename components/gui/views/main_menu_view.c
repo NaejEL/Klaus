@@ -1,6 +1,7 @@
 #include "main_menu_view.h"
 #include "wifi_menu_view.h"
 #include "splash_view.h"
+#include "tools_view.h"
 #include "rfid_menu_view.h"
 
 static view_handler_t *calling_view;
@@ -12,6 +13,7 @@ typedef enum
 {
     MAIN_MENU_WIFI,
     MAIN_MENU_RFID,
+    MAIN_MENU_TOOLS,
 
     MAIN_MENU_SIZE
 } main_menu_items_t;
@@ -23,12 +25,13 @@ static lv_obj_t *current_item_label;
 // Menu images
 LV_IMG_DECLARE(wifi_107x85);
 LV_IMG_DECLARE(rfid_85);
+LV_IMG_DECLARE(tools_85);
 static lv_obj_t *main_menu_image;
 static const void *image_list[MAIN_MENU_SIZE] = {
-    &wifi_107x85, &rfid_85};
+    &wifi_107x85, &rfid_85, &tools_85};
 
 static const char *main_menu_texts[MAIN_MENU_SIZE] = {
-    "WIFI", "RFID"};
+    "WIFI", "RFID", "TOOLS"};
 
 static void main_menu_input_handler(user_actions_t user_action)
 {
@@ -73,6 +76,10 @@ static void main_menu_input_handler(user_actions_t user_action)
         else if (current_item == MAIN_MENU_RFID)
         {
             rfid_menu_view_get_handler()->draw_view(get_current_view_handler());
+        }
+        else if (current_item == MAIN_MENU_TOOLS)
+        {
+            tools_view_get_handler()->draw_view(get_current_view_handler());
         }
 
     default:
@@ -122,6 +129,7 @@ void main_menu_view_init(void)
     current_item = MAIN_MENU_WIFI;
     wifi_menu_view_init();
     rfid_menu_view_init();
+    tools_view_init();
 }
 
 view_handler_t *main_menu_view_get_handler(void)

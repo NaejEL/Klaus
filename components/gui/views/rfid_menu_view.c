@@ -20,7 +20,7 @@ static const char *rfid_menu_texts[RFID_MENU_SIZE] = {"READ"};
 static rfid_menu_items_t current_menu_item;
 
 typedef enum {
-  NOT_IN_VIEW,
+  RFID_NOT_IN_VIEW,
   RFID_VIEW_MAIN,
   RFID_VIEW_READ,
   RFID_VIEW_TAG,
@@ -36,7 +36,7 @@ static const uint8_t mfc_keys_list[NB_KEYS][MFC_KEY_SIZE] = {
     {0xd3, 0xf7, 0xd3, 0xf7, 0xd3, 0xf7},
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 
-static rfid_menu_views_t current_view = NOT_IN_VIEW;
+static rfid_menu_views_t current_view = RFID_NOT_IN_VIEW;
 ;
 
 char dump_string[5000] = "";
@@ -48,7 +48,7 @@ static void rfid_menu_draw_dump_view(const pn532_record_t *record);
 static void rfid_menu_view_draw(view_handler_t *_calling_view);
 
 static void rfid_menu_input_handler(user_actions_t user_action) {
-  if (current_view == NOT_IN_VIEW) {
+  if (current_view == RFID_NOT_IN_VIEW) {
     return;
   }
   if (user_action == KEY_CLICK_SHORT) {
@@ -226,7 +226,7 @@ static void rfid_menu_draw_read_view() {
 }
 
 static void rfid_menu_view_clear() {
-  current_view = NOT_IN_VIEW;
+  current_view = RFID_NOT_IN_VIEW;
   lvgl_port_lock(0);
   lv_obj_clean(rfid_menu_view);
   lvgl_port_unlock();
@@ -271,7 +271,7 @@ void rfid_menu_view_init(void) {
   rfid_menu_view_handler.draw_view = rfid_menu_view_draw;
   rfid_menu_view_handler.clear_view = rfid_menu_view_clear;
   current_menu_item = RFID_MENU_READ;
-  current_view = NOT_IN_VIEW;
+  current_view = RFID_NOT_IN_VIEW;
   spinner = NULL;
 }
 

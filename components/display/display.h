@@ -36,3 +36,4 @@ void display_backlight_off(void);
 void display_backlight_toggle(void);
 void display_backlight_intensity(uint8_t intensity);
 void display_blacklight_set_default_intensity(uint8_t intensity);
+uint8_t display_backlight_get_intensity();

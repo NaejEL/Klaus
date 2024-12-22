@@ -7,6 +7,7 @@ idf_component_register(
          views/wifi_menu_view.c
          views/scan_view.c
          views/rfid_menu_view.c
+         views/tools_view.c
     INCLUDE_DIRS . views
     PRIV_REQUIRES display userinputs sd wifi clock battery wsl_bypasser pn532
     )
@@ -26,6 +27,7 @@ lvgl_port_create_c_image("images_png/wifi_107x85.png" "images_c/" "RGB565A8" "NO
 lvgl_port_create_c_image("images_png/scan_85.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/rfid_85.png" "images_c/" "RGB565A8" "NONE")
 lvgl_port_create_c_image("images_png/nowifi_85.png" "images_c/" "RGB565A8" "NONE")
+lvgl_port_create_c_image("images_png/tools_85.png" "images_c/" "RGB565A8" "NONE")
 
 # Add generated images to build
 lvgl_port_add_images(${COMPONENT_LIB} "images_c/")

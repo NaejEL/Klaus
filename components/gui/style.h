@@ -32,6 +32,7 @@ lv_style_t *style_get_background_transparent(void);
 lv_style_t *style_get_background_danger(void);
 lv_style_t *style_get_background_highlight(void);
 lv_style_t *style_get_background_alt_highlight(void);
+lv_style_t *style_get_background_popup(void);
 
 lv_style_t *style_get_font_bigfont(void);
 lv_style_t *style_get_font_highlight(void);

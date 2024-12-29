@@ -18,8 +18,6 @@ esp_err_t sd_init(spi_host_device_t spi_host, gpio_num_t cs) {
   sdmmc_host_t sd_host = SDSPI_HOST_DEFAULT();
   sd_host.slot = sd_handle;
 
-  sdmmc_card_t *card;
-
   esp_vfs_fat_sdmmc_mount_config_t mount_config = {.format_if_mount_failed =
                                                        true,
                                                    .max_files = 5,

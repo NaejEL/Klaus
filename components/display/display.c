@@ -124,7 +124,7 @@ esp_err_t display_init(spi_host_device_t spi_host, gpio_num_t cs, gpio_num_t dc,
                       "LCD backlight init failed");
   ESP_RETURN_ON_ERROR(esp_lcd_panel_disp_on_off(panel_handle, true), TAG,
                       "LCD Panel turn on failed");
-  display_backlight_init();
+  // display_backlight_init();
   return ESP_OK;
 }
 
@@ -160,3 +160,5 @@ void display_blacklight_set_default_intensity(uint8_t intensity) {
   default_intensity = intensity;
   display_backlight_intensity(default_intensity);
 }
+
+uint8_t display_backlight_get_intensity() { return default_intensity; }

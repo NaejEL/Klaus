@@ -6,6 +6,7 @@ static lv_style_t background_transparent;
 static lv_style_t background_highlight;
 static lv_style_t background_alt_highlight;
 static lv_style_t background_danger;
+static lv_style_t background_popup;
 
 static lv_style_t font_bigfont;
 static lv_style_t font_highlight;
@@ -25,6 +26,18 @@ void style_init(void) {
   lv_style_set_radius(&background_transparent, 0);
   lv_style_set_border_width(&background_transparent, 0);
   lv_style_set_pad_all(&background_transparent, 0);
+
+  // Popup background
+  lv_style_init(&background_popup);
+  lv_style_set_bg_color(&background_popup, lv_color_hex(BACKGROUND_COLOR));
+  lv_style_set_text_color(&background_popup, lv_color_hex(TEXT_COLOR));
+  lv_style_set_border_width(&background_popup, 0);
+  /*
+  lv_style_set_border_color(&background_popup,
+                            lv_color_hex(HIGHLIGHT_ALT_COLOR));
+  */
+  lv_style_set_radius(&background_popup, 10);
+  lv_style_set_pad_all(&background_popup, 2);
 
   // Highlight background
   lv_style_init(&background_highlight);
@@ -145,6 +158,8 @@ lv_style_t *style_get_background_alt_highlight(void) {
 }
 
 lv_style_t *style_get_background_danger(void) { return &background_danger; }
+
+lv_style_t *style_get_background_popup(void) { return &background_popup; }
 
 lv_style_t *style_get_font_bigfont(void) { return &font_bigfont; }
 

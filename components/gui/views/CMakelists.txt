@@ -5,6 +5,7 @@ idf_component_register(
          "wifi_menu_view.c" 
          "scan_view.c"
          "rfid_menu_view.c"
+         "tools_view.c"
     INCLUDE_DIRS .
     PRIV_REQUIRES display userinputs wifi pn532
     )

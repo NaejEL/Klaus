@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "gui.c" 
+    SRCS "popup.c" "gui.c" 
          "style.c" 
          "view_commons.c" 
          views/splash_view.c 

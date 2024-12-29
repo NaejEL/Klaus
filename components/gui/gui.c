@@ -3,6 +3,7 @@
 static const char *TAG = "GUI";
 
 #include "display.h"
+#include "popup.h"
 #include "userinputs.h"
 
 #include "main_menu_view.h"
@@ -26,6 +27,8 @@ static void user_action(user_actions_t action) {
   } else if (action == WHEEL_CLICK_SHORT &&
              get_current_view_handler() == splash_view_get_handler()) {
     main_menu_view_get_handler()->draw_view(get_current_view_handler());
+  } else if (popup_get_current_type() != POPUP_NOT_USED) {
+    popup_input(action);
   } else {
     get_current_view_handler()->input_callback(action);
   }

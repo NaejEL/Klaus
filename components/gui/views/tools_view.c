@@ -89,12 +89,13 @@ static void tools_draw_backlight_view() {
   lv_obj_add_style(tools_view, style_get_background_main(), LV_PART_MAIN);
 
   backlight_slider = lv_slider_create(tools_view);
-  lv_obj_add_style(backlight_slider,style_get_bar_background(),LV_PART_MAIN);
-  lv_obj_add_style(backlight_slider,style_get_bar_indic(),LV_PART_INDICATOR);
-  lv_obj_add_style(backlight_slider,style_get_background_alt_highlight(),LV_PART_KNOB);
-  
+  lv_obj_add_style(backlight_slider, style_get_bar_background(), LV_PART_MAIN);
+  lv_obj_add_style(backlight_slider, style_get_bar_indic(), LV_PART_INDICATOR);
+  lv_obj_add_style(backlight_slider, style_get_background_alt_highlight(),
+                   LV_PART_KNOB);
+
   lv_obj_center(backlight_slider);
-  lv_slider_set_value(backlight_slider,current_backlight,LV_ANIM_OFF);
+  lv_slider_set_value(backlight_slider, current_backlight, LV_ANIM_OFF);
 
   lvgl_port_unlock();
 }

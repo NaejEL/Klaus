@@ -97,7 +97,7 @@ void app_main(void) {
   display_backlight_on();
 
   if (sd_init(SPI_NUM, SD_CS) != ESP_OK) {
-    ESP_LOGI(TAG, "%s: Cannot initialise TF Card", __func__);
+    ESP_LOGE(TAG, "%s: Cannot initialise TF Card", __func__);
   }
 
   if (sd_is_present()) {

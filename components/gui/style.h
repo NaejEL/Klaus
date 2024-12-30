@@ -28,6 +28,7 @@ void style_init(void);
 
 lv_style_t *style_get_background_main(void);
 lv_style_t *style_get_background_status_bar(void);
+lv_style_t *style_get_background_title_bar(void);
 lv_style_t *style_get_background_transparent(void);
 lv_style_t *style_get_background_danger(void);
 lv_style_t *style_get_background_highlight(void);

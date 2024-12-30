@@ -1,6 +1,8 @@
 #include "tools_view.h"
 #include "display.h"
 
+#include "popup.h"
+
 static view_handler_t *calling_view;
 
 static lv_obj_t *tools_view;
@@ -9,6 +11,7 @@ static view_handler_t tools_view_handler;
 typedef enum {
   TOOLS_MENU_REBOOT,
   TOOLS_MENU_BACKLIGHT,
+  TOOLS_MENU_TEST,
 
   TOOLS_MENU_SIZE
 } tools_menu_items_t;
@@ -17,11 +20,13 @@ typedef enum {
   TOOLS_NOT_IN_VIEW,
   TOOLS_VIEW_MAIN,
   TOOLS_VIEW_BACKLIGHT,
+  TOOLS_VIEW_TEST,
 
   TOOLS_VIEWS_SIZE
 } tools_views_t;
 
-static const char *tools_menu_texts[TOOLS_MENU_SIZE] = {"REBOOT", "BACKLIGHT"};
+static const char *tools_menu_texts[TOOLS_MENU_SIZE] = {"REBOOT", "BACKLIGHT",
+                                                        "TEST"};
 
 static void tools_view_draw(view_handler_t *_calling_view);
 
@@ -33,6 +38,45 @@ static lv_obj_t *backlight_slider;
 static tools_menu_items_t current_menu_item;
 static tools_views_t current_view;
 
+// Menu test
+static popup_config_t *popup_config;
+
+static void keyboardCB(popup_content_t *content) {
+  if (!content->user_validation) {
+    return;
+  }
+  popup_config->callback = NULL;
+  popup_config->type = POPUP_INFO;
+  popup_config->title = NULL;
+  popup_config->content = content->content;
+  popup_start(popup_config);
+}
+
+static void popupMenuCB(popup_content_t *content) {
+  free(popup_config->items);
+  free(popup_config);
+  if (!content->user_validation || content->type != POPUP_MENU) {
+    return;
+  }
+  popup_config = malloc(sizeof(*popup_config));
+  popup_config->callback = NULL;
+  if (content->content_index == 0) {
+    popup_config->type = POPUP_ALERT;
+    popup_config->title = "Alert Test";
+    popup_config->content = "This is\nan alert popup test";
+  } else if (content->content_index == 1) {
+    popup_config->type = POPUP_INFO;
+    popup_config->title = "Info Test";
+    popup_config->content = "This is\nan info popup test";
+  } else if (content->content_index == 2) {
+    popup_config->type = POPUP_KEYBOARD;
+    popup_config->title = "Keyboard Test";
+    popup_config->content = NULL;
+    popup_config->callback = &keyboardCB;
+  }
+  popup_start(popup_config);
+}
+
 static void tools_input_handler(user_actions_t user_action) {
   if (user_action == KEY_CLICK_SHORT) {
     if (current_view == TOOLS_VIEW_MAIN) {
@@ -40,11 +84,26 @@ static void tools_input_handler(user_actions_t user_action) {
     } else {
       tools_view_draw(calling_view);
     }
+  } else if (user_action == WHEEL_CLICK_LONG) {
+
   } else if (user_action == WHEEL_CLICK_SHORT) {
     if (current_menu_item == TOOLS_MENU_REBOOT) {
       esp_restart();
     } else if (current_menu_item == TOOLS_MENU_BACKLIGHT) {
       tools_draw_backlight_view();
+    } else if (current_menu_item == TOOLS_MENU_TEST) {
+      popup_config = malloc(sizeof(*popup_config));
+      popup_config->callback = &popupMenuCB;
+      popup_config->content = NULL;
+      popup_config->nb_items = 3;
+      popup_config->items =
+          malloc(sizeof(*popup_config->items) * popup_config->nb_items);
+      popup_config->items[0] = "Alert";
+      popup_config->items[1] = "Info";
+      popup_config->items[2] = "Keyboard";
+      popup_config->title = "Menu Test";
+      popup_config->type = POPUP_MENU;
+      popup_start(popup_config);
     }
   } else if (user_action == WHEEL_UP) {
     if (current_view == TOOLS_VIEW_MAIN) {

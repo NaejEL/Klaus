@@ -27,6 +27,7 @@ struct popup_config_t {
 };
 
 struct popup_content_t {
+  popup_types_t type;
   char *content;        // Only useful for keyboard type
   size_t content_index; // text size or item selected index
   bool user_validation; // True if wheelclick, false if return

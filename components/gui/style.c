@@ -2,6 +2,7 @@
 
 static lv_style_t background_main;
 static lv_style_t background_status_bar;
+static lv_style_t background_title_bar;
 static lv_style_t background_transparent;
 static lv_style_t background_highlight;
 static lv_style_t background_alt_highlight;
@@ -29,15 +30,12 @@ void style_init(void) {
 
   // Popup background
   lv_style_init(&background_popup);
+  lv_style_set_bg_opa(&background_popup, LV_OPA_70);
   lv_style_set_bg_color(&background_popup, lv_color_hex(BACKGROUND_COLOR));
   lv_style_set_text_color(&background_popup, lv_color_hex(TEXT_COLOR));
   lv_style_set_border_width(&background_popup, 0);
-  /*
-  lv_style_set_border_color(&background_popup,
-                            lv_color_hex(HIGHLIGHT_ALT_COLOR));
-  */
   lv_style_set_radius(&background_popup, 10);
-  lv_style_set_pad_all(&background_popup, 2);
+  lv_style_set_pad_all(&background_popup, 0);
 
   // Highlight background
   lv_style_init(&background_highlight);
@@ -51,6 +49,27 @@ void style_init(void) {
   // Danger background use by scrollbar
   lv_style_init(&background_danger);
   lv_style_set_bg_color(&background_danger, lv_color_hex(DANGER_COLOR));
+
+  // Title bar background
+  lv_style_init(&background_title_bar);
+  lv_style_reset(&background_title_bar);
+  lv_style_set_bg_color(&background_title_bar, lv_color_hex(BACKGROUND_COLOR));
+  lv_style_set_text_color(&background_title_bar, lv_color_hex(TEXT_COLOR));
+  lv_style_set_radius(&background_title_bar, 0);
+  lv_style_set_border_width(&background_title_bar, 0);
+  lv_style_set_pad_all(&background_title_bar, 0);
+
+  static lv_grad_dsc_t title_grad_bar;
+  title_grad_bar.dir = LV_GRAD_DIR_VER;
+  title_grad_bar.stops_count = 2;
+  title_grad_bar.stops[0].color = lv_color_hex(BACKGROUND_COLOR);
+  title_grad_bar.stops[0].opa = LV_OPA_0;
+  title_grad_bar.stops[1].color = lv_color_hex(BACKGROUND_GRAD_COLOR);
+  title_grad_bar.stops[1].opa = LV_OPA_COVER;
+  /*Shift the gradient to the bottom*/
+  title_grad_bar.stops[0].frac = 100;
+  title_grad_bar.stops[1].frac = 200;
+  lv_style_set_bg_grad(&background_title_bar, &title_grad_bar);
 
   // Status bar background
   lv_style_init(&background_status_bar);
@@ -143,6 +162,10 @@ lv_style_t *style_get_background_main(void) { return &background_main; }
 
 lv_style_t *style_get_background_status_bar(void) {
   return &background_status_bar;
+}
+
+lv_style_t *style_get_background_title_bar(void) {
+  return &background_title_bar;
 }
 
 lv_style_t *style_get_background_transparent(void) {

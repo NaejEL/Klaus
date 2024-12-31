@@ -8,7 +8,9 @@ static const char *config_file = "klaus_config.json";
 esp_err_t config_parse_config(klaus_config_t *klaus_config) {
 
   cJSON *json_config;
-  json_config = cJSON_Parse(sd_get_file_content(config_file));
+  char *sd_config = sd_get_file_content(config_file);
+  json_config = cJSON_Parse(sd_config);
+  free(sd_config);
 
 #define CONF_ITEM(_type, name, default_value)                                  \
   klaus_config->name = default_value;                                          \
